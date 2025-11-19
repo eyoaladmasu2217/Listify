@@ -1,9 +1,11 @@
-import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from "react-native";
+import { useState } from "react";
+import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import { Button } from "react-native-web";
 
 export default function LoginScreen() {
   const [showPassword, setShowPassword] = useState(false);
+  const [theme, setTheme] = useState("green");
 
   return (
     <View style={styles.container}>
@@ -15,6 +17,9 @@ export default function LoginScreen() {
           placeholder="Email or Username"
           placeholderTextColor="#777"
           style={styles.input}
+          underlineColorAndroid="transparent"
+          spellCheck={false}
+          autoCorrect={false}
         />
       </View>
 
@@ -25,6 +30,9 @@ export default function LoginScreen() {
           placeholderTextColor="#777"
           secureTextEntry={!showPassword}
           style={styles.input}
+          underlineColorAndroid="transparent"
+          spellCheck={false}
+          autoCorrect={false}
         />
         <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
           <Ionicons name={showPassword ? "eye" : "eye-off"} size={22} color="#777" />
@@ -46,7 +54,7 @@ export default function LoginScreen() {
 
       {/* Social Buttons */}
       <View style={styles.socialButton}>
-        <Image source={require("../assets/images/L.png")} style={styles.socialIcon} />
+        <Image source={require("../assets/images/spotify.png")} style={styles.socialIcon} />
         <Text style={styles.socialText}>Continue with Spotify</Text>
       </View>
 
@@ -59,8 +67,34 @@ export default function LoginScreen() {
         <Ionicons name="logo-apple" size={20} color="white" />
         <Text style={styles.socialText}>Continue with Apple</Text>
       </View>
+      
+        {/* Theme selector */}
+        <Text style={styles.themeLabel}>Choose your theme</Text>
+        <View style={styles.themeRow}>
+          <TouchableOpacity
+            style={[styles.themeCircle, theme === "green" ? styles.themeSelected : null, { backgroundColor: "#1DB954" }]}
+            onPress={() => setTheme("green")}
+          />
+
+          <TouchableOpacity
+            style={[styles.themeCircle, theme === "blue" ? styles.themeSelected : null, { backgroundColor: "#3B82F6" }]}
+            onPress={() => setTheme("blue")}
+          />
+
+          <TouchableOpacity
+            style={[styles.themeCircle, theme === "purple" ? styles.themeSelected : null, { backgroundColor: "#8B5CF6" }]}
+            onPress={() => setTheme("purple")}
+          />
+
+          <TouchableOpacity
+            style={[styles.themeCircle, theme === "light" ? styles.themeSelectedLight : null, { backgroundColor: "#ffffff" }]}
+            onPress={() => setTheme("light")}
+          />
+        </View>
+
 
     </View>
+
   );
 }
 
@@ -93,6 +127,11 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     color: "white",
+    outlineStyle: "none",
+    outlineWidth: 0,
+    outlineColor: "transparent",
+    boxShadow: "none",
+    borderWidth: 0,
   },
 
   loginButton: {
@@ -152,5 +191,36 @@ const styles = StyleSheet.create({
   socialText: {
     color: "white",
     fontSize: 16,
+  },
+
+  themeLabel: {
+    color: "#888",
+    textAlign: "center",
+    marginTop: 18,
+    marginBottom: 8,
+  },
+
+  themeRow: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 14,
+    marginBottom: 20,
+  },
+
+  themeCircle: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    borderWidth: 2,
+    borderColor: "transparent",
+  },
+
+  themeSelected: {
+    borderColor: "#1DB954",
+  },
+
+  themeSelectedLight: {
+    borderColor: "#1DB954",
   },
 });
