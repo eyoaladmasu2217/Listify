@@ -82,12 +82,12 @@ export default function LoginScreen() {
           />
 
           <TouchableOpacity
-            style={[styles.themeCircle, theme === "purple" ? styles.themeSelected : null, { backgroundColor: "#8B5CF6" }]}
+            style={[styles.themeCircle, theme === "purple" ? styles.themeSelected : null, { backgroundColor: "#b4760bff" }]}
             onPress={() => setTheme("purple")}
           />
 
           <TouchableOpacity
-            style={[styles.themeCircle, theme === "light" ? styles.themeSelectedLight : null, { backgroundColor: "#ffffff" }]}
+            style={[styles.themeCircle, theme === "light" ? styles.themeSelectedLight : null, { backgroundColor: "#e24747ff" }]}
             onPress={() => setTheme("light")}
           />
         </View>
