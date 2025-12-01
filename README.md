@@ -1,5 +1,4 @@
 # Listify
-[![Ask DeepWiki](https://devin.ai/assets/askdeepwiki.png)](https://deepwiki.com/eyoaladmasu2217/Listify.git)
 
 Listify is a mobile application built with Expo and React Native that allows users to rate music albums and share their ratings with friends. Discover new music through a feed of your friends' activity and see what's trending.
 
