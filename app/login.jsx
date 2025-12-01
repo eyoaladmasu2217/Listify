@@ -54,7 +54,7 @@ export default function LoginScreen() {
 
       {/* Social Buttons */}
       <View style={styles.socialButton}>
-        <Image source={require("../assets/images/spotify.png")} style={styles.socialIcon} />
+        <Image source={require("../assets/spotify.png")} style={styles.socialIcon} />
         <Text style={styles.socialText}>Continue with Spotify</Text>
       </View>
 

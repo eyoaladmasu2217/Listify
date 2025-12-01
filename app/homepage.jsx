@@ -1,5 +1,4 @@
-import React from 'react';
-import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function HomePage() {
   return (
@@ -14,7 +13,7 @@ export default function HomePage() {
       {/* Featured Album Card */}
       <View style={styles.featureCard}>
         <Image
-          source={require('./assets/abbey.jpg')}
+          source={require('./assets/abbey.png')}
           style={styles.featureImage}
         />
         <View style={styles.featureContent}>
@@ -49,7 +48,7 @@ export default function HomePage() {
             <Text style={styles.postArtist}>The Beatles</Text>
             <Text style={styles.stars}>⭐⭐⭐⭐⭐</Text>
           </View>
-          <Image source={require('./assets/abbey.jpg')} style={styles.postThumb} />
+          <Image source={require('./assets/abbey.png')} style={styles.postThumb} />
         </View>
         <View style={styles.postFooter}>
           <Text style={styles.icon}>♡ 12</Text>
