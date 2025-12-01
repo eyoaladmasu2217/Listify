@@ -88,3 +88,113 @@ export default function HomePage() {
   );
 }
 
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#111',
+    padding: 20,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+  },
+  logo: { color: '#fff', fontSize: 20 },
+  title: { color: '#fff', fontSize: 20, fontWeight: '600' },
+  bell: { color: '#fff', fontSize: 20 },
+
+  featureCard: {
+    backgroundColor: '#222',
+    borderRadius: 20,
+    overflow: 'hidden',
+    marginBottom: 20,
+  },
+  featureImage: {
+    width: '100%',
+    height: 200,
+  },
+  featureContent: {
+    padding: 15,
+  },
+  featureLabel: { color: '#ccc', fontSize: 12 },
+  featureTitle: { color: '#fff', fontSize: 26, fontWeight: '700' },
+  featureArtist: { color: '#ccc', fontSize: 16 },
+  rateButton: {
+    marginTop: 10,
+    backgroundColor: '#1DB954',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 25,
+    alignSelf: 'flex-start',
+  },
+  rateButtonText: { color: '#fff', fontWeight: '600' },
+
+  tabs: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+  },
+  activeTab: {
+    backgroundColor: '#222',
+    paddingVertical: 10,
+    paddingHorizontal: 40,
+    borderRadius: 10,
+  },
+  inactiveTab: {
+    paddingVertical: 10,
+    paddingHorizontal: 40,
+  },
+  activeTabText: { color: '#fff', fontWeight: '600' },
+  inactiveTabText: { color: '#888' },
+
+  postCard: {
+    backgroundColor: '#181818',
+    padding: 15,
+    borderRadius: 15,
+    marginBottom: 20,
+  },
+  postHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  userImg: {
+    width: 35,
+    height: 35,
+    borderRadius: 20,
+    marginRight: 10,
+  },
+  postHeaderText: { color: '#aaa' },
+  postRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  postTitle: { color: '#fff', fontSize: 18, fontWeight: '600' },
+  postArtist: { color: '#888', marginBottom: 5 },
+  stars: { color: '#1DB954', fontSize: 16 },
+  postThumb: {
+    width: 90,
+    height: 90,
+    borderRadius: 10,
+  },
+  postFooter: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    marginTop: 10,
+    gap: 20,
+  },
+  icon: { color: '#fff' },
+
+  bottomNav: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingVertical: 20,
+    borderTopWidth: 1,
+    borderTopColor: '#333',
+    marginTop: 10,
+  },
+  navActive: { color: '#1DB954' },
+  navText: { color: '#888' },
+});
