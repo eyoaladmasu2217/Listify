@@ -1,50 +1,74 @@
-# Welcome to your Expo app 👋
+# Listify
+[![Ask DeepWiki](https://devin.ai/assets/askdeepwiki.png)](https://deepwiki.com/eyoaladmasu2217/Listify.git)
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Listify is a mobile application built with Expo and React Native that allows users to rate music albums and share their ratings with friends. Discover new music through a feed of your friends' activity and see what's trending.
 
-## Get started
+## Key Features
 
-1. Install dependencies
+- **Social Music Rating:** Rate your favorite albums and see what your friends are listening to and rating.
+- **Authentication:** Secure login with email/password or use social providers like Spotify, Google, and Apple for a seamless experience.
+- **Dynamic Homepage:** Features a prominent album for rating, a feed of friends' recent ratings, and a section for trending music.
+- **Customizable Themes:** Choose from several color themes (Green, Blue, Purple, Red) to personalize your app experience.
+- **Cross-Platform:** Built with Expo to run on iOS, Android, and the web from a single codebase.
 
-   ```bash
-   npm install
-   ```
+## Tech Stack
 
-2. Start the app
+- **Framework:** React Native, Expo
+- **Routing:** Expo Router
+- **Navigation:** React Navigation
+- **Language:** TypeScript & JavaScript (JSX)
+- **Styling:** React Native StyleSheet
+- **Linting:** ESLint
 
-   ```bash
-   npx expo start
-   ```
+## Getting Started
 
-In the output, you'll find options to open the app in a
+Follow these instructions to get a local copy of the project up and running.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+### Prerequisites
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+- Node.js
+- npm (or yarn/pnpm)
+- Expo Go app on your mobile device (optional, for physical device testing)
 
-## Get a fresh project
+### Installation & Launch
 
-When you're ready, run:
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/eyoaladmasu2217/listify.git
+    cd listify
+    ```
+2.  **Install dependencies:**
+    ```bash
+    npm install
+    ```
+3.  **Start the development server:**
+    ```bash
+    npx expo start
+    ```
 
-```bash
-npm run reset-project
-```
+This will open the Expo developer tools in your browser. You can then choose to run the app in:
+- An Android emulator
+- An iOS simulator
+- A web browser
+- The Expo Go app on your physical device (by scanning the QR code)
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Available Scripts
 
-## Learn more
+In the project directory, you can run the following commands:
 
-To learn more about developing your project with Expo, look at the following resources:
+-   `npm start`: Runs the app in development mode using the Expo CLI.
+-   `npm run android`: Runs the app on a connected Android device or emulator.
+-   `npm run ios`: Runs the app on the iOS simulator.
+-   `npm run web`: Runs the app in a web browser.
+-   `npm run lint`: Lints the project files using ESLint.
+-   `npm run reset-project`: Resets the project to a blank Expo starter template, moving the existing example files to an `app-example` directory.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## Project Structure
 
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+-   `app/`: Contains all screens and routes for the application, using Expo's file-based routing.
+    -   `login.jsx`: The authentication screen with social login options.
+    -   `homepage.jsx`: The main screen after logging in, displaying album ratings and social feeds.
+-   `assets/`: Stores static assets like images, icons, and fonts.
+-   `constants/`: Includes application-wide constants, such as color palettes and theme configurations (`theme.ts`).
+-   `hooks/`: Home for custom React hooks used throughout the app, like `useThemeColor` for handling dynamic theming.
+-   `scripts/`: Contains helper scripts for project management, such as `reset-project.js`.
