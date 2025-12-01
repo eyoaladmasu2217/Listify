@@ -1,4 +1,4 @@
-import LoginScreen from './login';
+import Homepage from './Homepage';
 
 
-export default LoginScreen;
+export default Homepage;
