@@ -13,7 +13,7 @@ export default function HomePage() {
       {/* Featured Album Card */}
       <View style={styles.featureCard}>
         <Image
-          source={require('./assets/abbey.png')}
+          source={require('../assets/abbey.png')}
           style={styles.featureImage}
         />
         <View style={styles.featureContent}>
@@ -39,7 +39,7 @@ export default function HomePage() {
       {/* Post 1 */}
       <View style={styles.postCard}>
         <View style={styles.postHeader}>
-          <Image source={require('./assets/user1.png')} style={styles.userImg} />
+          <Image source={require('../assets/spotify.png')} style={styles.userImg} />
           <Text style={styles.postHeaderText}>John Doe rated</Text>
         </View>
         <View style={styles.postRow}>
@@ -48,7 +48,7 @@ export default function HomePage() {
             <Text style={styles.postArtist}>The Beatles</Text>
             <Text style={styles.stars}>⭐⭐⭐⭐⭐</Text>
           </View>
-          <Image source={require('./assets/abbey.png')} style={styles.postThumb} />
+          <Image source={require('../assets/abbey.png')} style={styles.postThumb} />
         </View>
         <View style={styles.postFooter}>
           <Text style={styles.icon}>♡ 12</Text>
@@ -59,7 +59,7 @@ export default function HomePage() {
       {/* Post 2 */}
       <View style={styles.postCard}>
         <View style={styles.postHeader}>
-          <Image source={require('./assets/user2.png')} style={styles.userImg} />
+          <Image source={require('../assets/spotify.png')} style={styles.userImg} />
           <Text style={styles.postHeaderText}>Jane Smith rated</Text>
         </View>
         <View style={styles.postRow}>
@@ -68,7 +68,7 @@ export default function HomePage() {
             <Text style={styles.postArtist}>Harry Styles</Text>
             <Text style={styles.stars}>⭐⭐⭐⭐</Text>
           </View>
-          <Image source={require('./assets/asiwas.png')} style={styles.postThumb} />
+          <Image source={require('../assets/L.png')} style={styles.postThumb} />
         </View>
         <View style={styles.postFooter}>
           <Text style={styles.icon}>♡ 31</Text>
