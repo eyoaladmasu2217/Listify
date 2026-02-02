@@ -28,22 +28,42 @@ export default function HomeTab() {
             <ScrollView contentContainerStyle={styles.scrollContent}>
                 <LogoTitle fontSize={28} color={theme.text} style={{ justifyContent: 'flex-start' }} />
 
-                {/* Featured Album (Static for now) */}
-                <View style={[styles.card, { backgroundColor: theme.surface }]}>
-                    <Image
-                        source={{ uri: "https://upload.wikimedia.org/en/4/42/Beatles_-_Abbey_Road.jpg" }}
-                        style={styles.cardImage}
-                    />
-                    <View style={styles.cardContent}>
-                        <Text style={[styles.cardLabel, { color: theme.textSecondary }]}>FEATURED ALBUM</Text>
-                        <Text style={[styles.cardTitle, { color: theme.text }]}>Abbey Road</Text>
-                        <Text style={[styles.cardSubtitle, { color: theme.textSecondary }]}>The Beatles</Text>
+                {/* Featured Carousel */}
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 30 }}>
+                    {[
+                        {
+                            title: "Abbey Road",
+                            artist: "The Beatles",
+                            cover: require("../../assets/abbey.png"),
+                            color: "#1DB954"
+                        },
+                        {
+                            title: "Nevermind",
+                            artist: "Nirvana",
+                            cover: require("../../assets/Nirvana.webp"),
+                            color: "#3B82F6"
+                        },
+                        {
+                            title: "The Bends",
+                            artist: "Radiohead",
+                            cover: require("../../assets/Radiohead - The Bends.jpg"),
+                            color: "#8b5cff"
+                        }
+                    ].map((album, index) => (
+                        <View key={index} style={[styles.card, { backgroundColor: theme.surface, width: 300, marginRight: 15 }]}>
+                            <Image source={album.cover} style={styles.cardImage} />
+                            <View style={styles.cardContent}>
+                                <Text style={[styles.cardLabel, { color: theme.textSecondary }]}>FEATURED ALBUM</Text>
+                                <Text style={[styles.cardTitle, { color: theme.text }]}>{album.title}</Text>
+                                <Text style={[styles.cardSubtitle, { color: theme.textSecondary }]}>{album.artist}</Text>
 
-                        <TouchableOpacity style={[styles.actionButton, { backgroundColor: theme.primary }]}>
-                            <Text style={styles.actionButtonText}>Rate Now</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
+                                <TouchableOpacity style={[styles.actionButton, { backgroundColor: theme.primary }]}>
+                                    <Text style={styles.actionButtonText}>Rate Now</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    ))}
+                </ScrollView>
 
                 {/* Feed Section Title */}
                 <Text style={[styles.sectionTitle, { color: theme.text }]}>Friends Activity</Text>
