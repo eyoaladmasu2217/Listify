@@ -1,14 +1,50 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import Homepage from "./Homepage";
+import { ActivityIndicator, View } from "react-native";
+import AppTabs from "./AppTabs";
+import CreateReview from "./CreateReview";
 import LoginScreen from "./Login";
+import RegisterScreen from "./Register";
+import SongDetail from "./SongDetail";
+import { AuthProvider, useAuth } from "./context/AuthContext";
+import { ThemeProvider } from "./context/ThemeContext";
 
 const Stack = createNativeStackNavigator();
 
-export default function App() {
+function RootNavigator() {
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#121212" }}>
+        <ActivityIndicator size="large" color="#1DB954" />
+      </View>
+    );
+  }
+
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="Login" component={LoginScreen} />
-      <Stack.Screen name="Homepage" component={Homepage} />
+      {user ? (
+        <>
+          <Stack.Screen name="AppTabs" component={AppTabs} />
+          <Stack.Screen name="SongDetail" component={SongDetail} options={{ presentation: 'card' }} />
+          <Stack.Screen name="CreateReview" component={CreateReview} options={{ presentation: 'modal' }} />
+        </>
+      ) : (
+        <>
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="Register" component={RegisterScreen} />
+        </>
+      )}
     </Stack.Navigator>
+  );
+}
+
+export default function App() {
+  return (
+    <ThemeProvider>
+      <AuthProvider>
+        <RootNavigator />
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
