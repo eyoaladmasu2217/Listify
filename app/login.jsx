@@ -1,6 +1,6 @@
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { useState } from "react";
-import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
-import Ionicons from "react-native-vector-icons/Ionicons";
+import { StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 
 export default function LoginScreen({ navigation }) {
   const [showPassword, setShowPassword] = useState(false);
@@ -29,9 +29,10 @@ export default function LoginScreen({ navigation }) {
           placeholder="Password"
           placeholderTextColor="#777"
           secureTextEntry={!showPassword}
+          autoCapitalize="none"
           style={styles.input}
         />
-        <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+        <TouchableOpacity onPress={() => setShowPassword((prev) => !prev)}>
           <Ionicons name={showPassword ? "eye" : "eye-off"} size={22} color="#777" />
         </TouchableOpacity>
       </View>
