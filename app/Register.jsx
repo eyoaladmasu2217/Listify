@@ -35,9 +35,16 @@ export default function RegisterScreen({ navigation }) {
 
         // ...
         <View style={[styles.container, { backgroundColor: theme.background }]}>
-            <View style={{ marginBottom: 40 }}>
-                <Text style={[styles.title, { color: theme.text, marginBottom: 10 }]}>Join</Text>
-                <LogoTitle fontSize={50} color={theme.text} />
+            <View style={{ marginBottom: 40, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                <Text style={{
+                    fontSize: 34, // Match LogoTitle default
+                    color: theme.text,
+                    fontWeight: "600",
+                    fontFamily: "serif",
+                    fontStyle: "italic",
+                    marginRight: 8 // Space between Join and Logo
+                }}>Welcome to</Text>
+                <LogoTitle fontSize={38} color={theme.text} />
             </View>
 
             <View style={styles.inputContainer}>
