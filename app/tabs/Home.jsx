@@ -225,7 +225,7 @@ export default function HomeTab({ navigation }) {
                                             <Image source={{ uri: avatar }} style={styles.avatar} />
                                             <Text style={[styles.feedUser, { color: theme.textSecondary }]}>
                                                 <Text style={{ color: theme.text, fontWeight: "600" }}>{`${username} `}</Text>
-                                                {item.action_type || "rated"}
+                                                {`${item.action_type || "rated"}`}
                                             </Text>
                                         </View>
 
@@ -240,7 +240,7 @@ export default function HomeTab({ navigation }) {
 
                                         {reviewText ? (
                                             <Text style={[styles.reviewSnippet, { color: theme.textSecondary }]} numberOfLines={2}>
-                                                "{reviewText}"
+                                                {`"${reviewText}"`}
                                             </Text>
                                         ) : null}
 

@@ -65,7 +65,7 @@ export default function SongDetail({ route, navigation }) {
 
                 <View style={[styles.statsRow, { borderColor: theme.surface }]}>
                     <View style={styles.stat}>
-                        <Text style={[styles.statValue, { color: theme.text }]}>{reviews.length > 0 ? (reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length).toFixed(1) : "-"}</Text>
+                        <Text style={[styles.statValue, { color: theme.text }]}>{`${reviews.length > 0 ? (reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length).toFixed(1) : "-"}`}</Text>
                         <Text style={[styles.statLabel, { color: theme.textSecondary }]}>Average</Text>
                     </View>
                     <View style={styles.stat}>
