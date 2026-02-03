@@ -1,10 +1,11 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useEffect, useRef, useState } from "react";
 import { ActivityIndicator, Image, ImageBackground, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import client from "../api/client";
 import LogoTitle from "../components/LogoTitle";
 import { useTheme } from "../context/ThemeContext";
 
-export default function HomeTab() {
+export default function HomeTab({ navigation }) {
     const { theme } = useTheme();
     const [feed, setFeed] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -70,10 +71,11 @@ export default function HomeTab() {
                     if (res.data && res.data.length > 0) {
                         setFeed(res.data);
                     } else {
+                        // If API returns empty, use mock
                         setFeed(mockFeed);
                     }
                 } catch (apiError) {
-                    console.log("API Error, using mock", apiError);
+                    console.log("API Error, using mock", apiError.message);
                     setFeed(mockFeed);
                 }
 
@@ -136,8 +138,14 @@ export default function HomeTab() {
                             cover: require("../../assets/Radiohead - The Bends.jpg"),
                         }
                     ].map((album, index) => (
-                        <TouchableOpacity key={index} activeOpacity={0.9} onPressIn={handleTouch}>
-
+                        <TouchableOpacity
+                            key={index}
+                            activeOpacity={0.9}
+                            onPressIn={handleTouch}
+                            onPress={() => navigation.navigate("CreateReview", {
+                                song: { ...album, cover: Image.resolveAssetSource(album.cover).uri }
+                            })}
+                        >
                             <ImageBackground
                                 source={album.cover}
                                 style={styles.featuredCard}
@@ -179,44 +187,81 @@ export default function HomeTab() {
                     <ActivityIndicator color={theme.primary} style={{ marginTop: 20 }} />
                 ) : (
                     <View style={{ gap: 15 }}>
-                        {feed.map((item, index) => (
-                            <View key={index} style={[styles.feedCard, { backgroundColor: "#1A1A1A" }]}>
-                                {/* Left Content */}
-                                <View style={{ flex: 1, marginRight: 15 }}>
-                                    {/* User Header */}
-                                    <View style={styles.feedHeader}>
-                                        <Image source={{ uri: item.user?.avatar || "https://ui-avatars.com/api/?background=random" }} style={styles.avatar} />
-                                        <Text style={[styles.feedUser, { color: theme.textSecondary }]}>
-                                            <Text style={{ color: theme.text, fontWeight: "600" }}>{item.user?.username}</Text> rated
-                                        </Text>
-                                    </View>
+                        {feed.map((item, index) => {
+                            // Normalize real activity data vs mock feed
+                            const actor = item.actor || item.user;
+                            const target = item.target || {};
+                            const isReview = item.action_type === "review" || (!item.action_type && item.song);
 
-                                    {/* Song Info */}
-                                    <Text style={[styles.feedTitle, { color: theme.text }]}>{item.song?.title}</Text>
-                                    <Text style={[styles.feedArtist, { color: theme.textSecondary }]}>{item.song?.artist}</Text>
+                            // Extract display data
+                            const username = actor?.username || "Someone";
+                            const avatar = actor?.profile_picture_url || actor?.avatar || "https://ui-avatars.com/api/?background=random";
+                            const songInfo = isReview ? (item.target ? {
+                                id: target.song_id,
+                                title: target.song_title,
+                                artist: target.song_artist,
+                                cover: target.song_cover
+                            } : item.song) : null;
+                            const rating = target.rating || item.rating || 0;
+                            const reviewText = target.review_text || item.review_text;
 
-                                    {/* Rating */}
-                                    <View style={{ marginVertical: 8 }}>
-                                        {renderStars(item.rating || 0)}
-                                    </View>
-
-                                    {/* Footer Stats */}
-                                    <View style={styles.feedFooter}>
-                                        <View style={styles.statItem}>
-                                            <Ionicons name="heart-outline" size={16} color={theme.textSecondary} />
-                                            <Text style={[styles.statText, { color: theme.textSecondary }]}>{item.likes || 0}</Text>
+                            return (
+                                <TouchableOpacity
+                                    key={item.id || index}
+                                    style={[styles.feedCard, { backgroundColor: "#1A1A1A" }]}
+                                    onPress={() => navigation.navigate("SongDetail", {
+                                        song: {
+                                            id: songInfo?.id,
+                                            title: songInfo?.title,
+                                            artist: songInfo?.artist,
+                                            cover: typeof songInfo?.cover === 'number' ? Image.resolveAssetSource(songInfo.cover).uri : (songInfo?.cover || "https://via.placeholder.com/150")
+                                        }
+                                    })}
+                                >
+                                    {/* Left Content */}
+                                    <View style={{ flex: 1, marginRight: 15 }}>
+                                        {/* User Header */}
+                                        <View style={styles.feedHeader}>
+                                            <Image source={{ uri: avatar }} style={styles.avatar} />
+                                            <Text style={[styles.feedUser, { color: theme.textSecondary }]}>
+                                                <Text style={{ color: theme.text, fontWeight: "600" }}>{`${username} `}</Text>
+                                                {item.action_type || "rated"}
+                                            </Text>
                                         </View>
-                                        <View style={styles.statItem}>
-                                            <Ionicons name="chatbubble-outline" size={16} color={theme.textSecondary} />
-                                            <Text style={[styles.statText, { color: theme.textSecondary }]}>{item.comments || 0}</Text>
+
+                                        {/* Song Info */}
+                                        <Text style={[styles.feedTitle, { color: theme.text }]}>{songInfo?.title || ""}</Text>
+                                        <Text style={[styles.feedArtist, { color: theme.textSecondary }]}>{songInfo?.artist || ""}</Text>
+
+                                        {/* Rating */}
+                                        <View style={{ marginVertical: 8 }}>
+                                            {renderStars(rating)}
+                                        </View>
+
+                                        {reviewText ? (
+                                            <Text style={[styles.reviewSnippet, { color: theme.textSecondary }]} numberOfLines={2}>
+                                                "{reviewText}"
+                                            </Text>
+                                        ) : null}
+
+                                        {/* Footer Stats */}
+                                        <View style={styles.feedFooter}>
+                                            <View style={styles.statItem}>
+                                                <Ionicons name="heart-outline" size={16} color={theme.textSecondary} />
+                                                <Text style={[styles.statText, { color: theme.textSecondary }]}>{item.likes || 0}</Text>
+                                            </View>
+                                            <View style={styles.statItem}>
+                                                <Ionicons name="chatbubble-outline" size={16} color={theme.textSecondary} />
+                                                <Text style={[styles.statText, { color: theme.textSecondary }]}>{item.comments || 0}</Text>
+                                            </View>
                                         </View>
                                     </View>
-                                </View>
 
-                                {/* Right: Album Art */}
-                                <Image source={typeof item.song?.cover === 'string' ? { uri: item.song?.cover } : item.song?.cover} style={styles.feedCover} />
-                            </View>
-                        ))}
+                                    {/* Right: Album Art */}
+                                    <Image source={typeof songInfo?.cover === 'number' ? songInfo.cover : { uri: songInfo?.cover || "https://via.placeholder.com/150" }} style={styles.feedCover} />
+                                </TouchableOpacity>
+                            );
+                        })}
                     </View>
                 )}
             </ScrollView>
@@ -328,6 +373,13 @@ const styles = StyleSheet.create({
         height: 80,
         borderRadius: 8,
         backgroundColor: "#333"
+    },
+    reviewSnippet: {
+        fontSize: 13,
+        fontStyle: "italic",
+        marginTop: 4,
+        marginBottom: 8,
+        lineHeight: 18
     },
     feedFooter: {
         flexDirection: "row",

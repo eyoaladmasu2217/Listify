@@ -1,6 +1,7 @@
 import * as SecureStore from "expo-secure-store";
-import { jwtDecode } from "jwt-decode"; // Fix import for named export
+import { jwtDecode } from "jwt-decode";
 import { createContext, useContext, useEffect, useState } from "react";
+import client from "../api/client";
 
 const AuthContext = createContext();
 
@@ -9,86 +10,129 @@ export const AuthProvider = ({ children }) => {
     const [token, setToken] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
 
-    // Check for stored token on launch
-    useEffect(() => {
-        const restoreSession = async () => {
-            try {
-                const storedToken = await SecureStore.getItemAsync("auth_token");
-                if (storedToken) {
-                    // Optional: check expiry
-                    const decoded = jwtDecode(storedToken);
-                    // If expired, logging out... (omitted for MVP)
-                    setToken(storedToken);
-                    // Fetch user data
+    const restoreSession = async () => {
+        try {
+            const storedToken = await SecureStore.getItemAsync("auth_token");
+            if (storedToken) {
+                setToken(storedToken);
+                // Fetch the latest user info
+                try {
+                    const res = await client.get("/users/me");
+                    setUser(res.data);
+                } catch (e) {
+                    console.log("Restoring user from token decode (Offline/API Down)");
                     try {
-                        // We'll set the token in the client for this request manually if interceptor isn't fast enough, 
-                        // but usually interceptor handles it if we await.
-                        // Actually, interceptor reads from SecureStore, so we are good.
-                        // For safety, let's just decode the token or fetch /users/me later.
-                        setUser({ ...decoded, id: decoded.sub }); // Basic restoring
-                    } catch (e) {
-                        console.log("Failed to restore user from token", e);
+                        // If it's our specific mock token, just use a dummy user
+                        if (storedToken === "mock.jwt.token") {
+                            setUser({ id: 1, username: "demo_user", email: "demo@example.com" });
+                        } else {
+                            const decoded = jwtDecode(storedToken);
+                            setUser({ id: decoded.sub, ...decoded });
+                        }
+                    } catch (decodeErr) {
+                        console.log("Token decode failed", decodeErr.message);
                     }
                 }
-            } catch (error) {
-                console.log("Error restoring session:", error);
-            } finally {
-                setIsLoading(false);
             }
-        };
+        } catch (error) {
+            console.log("Error restoring session:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
         restoreSession();
     }, []);
 
     const login = async (email, password) => {
-        // MOCK LOGIN FOR DEMO
-        console.log("Mock Login Triggered");
-        const mockUser = {
-            id: 1,
-            username: "demo_user",
-            email: email,
-            profile_picture_url: "https://ui-avatars.com/api/?name=Demo+User&background=1DB954&color=fff",
-            reviews_count: 12,
-            followers_count: 50,
-            following_count: 34,
-            bio: "Just a demo user browsing around."
-        };
+        try {
+            const response = await client.post("/auth/login", {
+                user: { email, password }
+            });
 
-        await SecureStore.setItemAsync("auth_token", "mock-token-123");
-        setToken("mock-token-123");
-        setUser(mockUser);
-        return { success: true };
+            const { access_token, user: userData } = response.data;
+
+            if (access_token) {
+                await SecureStore.setItemAsync("auth_token", access_token);
+                setToken(access_token);
+                setUser(userData);
+                return { success: true };
+            }
+            return { success: false, error: "Token not found in response" };
+        } catch (error) {
+            console.log("Login Error:", error.response?.data || error.message);
+
+            // FALLBACK FOR DEMO: If network error or connection refused, allow demo login
+            if (email === "demo@example.com" && password === "password") {
+                console.log("Network error detected, falling back to mock login for demo account");
+                const mockUser = {
+                    id: 1,
+                    username: "demo_user",
+                    email: "demo@example.com",
+                    profile_picture_url: "https://ui-avatars.com/api/?name=Demo+User&background=1DB954&color=fff",
+                    reviews_count: 5,
+                    followers_count: 10,
+                    following_count: 15,
+                    bio: "Standard demo account (Offline Mode)."
+                };
+                await SecureStore.setItemAsync("auth_token", "mock.jwt.token"); // Valid-ish format for decoder
+                setToken("mock.jwt.token");
+                setUser(mockUser);
+                return { success: true };
+            }
+
+            return {
+                success: false,
+                error: error.response?.data?.error || "Login failed. Please check your connection to the backend."
+            };
+        }
     };
 
     const register = async (username, email, password) => {
-        // MOCK REGISTER FOR DEMO
-        const mockUser = {
-            id: 1,
-            username: username,
-            email: email,
-            profile_picture_url: `https://ui-avatars.com/api/?name=${username}&background=random`,
-            reviews_count: 0,
-            followers_count: 0,
-            following_count: 0,
-            bio: "New user."
-        };
+        try {
+            const response = await client.post("/auth", {
+                user: { username, email, password }
+            });
 
-        await SecureStore.setItemAsync("auth_token", "mock-token-123");
-        setToken("mock-token-123");
-        setUser(mockUser);
-        return { success: true };
+            const { access_token, user: userData } = response.data;
+
+            if (access_token) {
+                await SecureStore.setItemAsync("auth_token", access_token);
+                setToken(access_token);
+                setUser(userData);
+                return { success: true };
+            }
+            return { success: false, error: "Registration successful but token missing" };
+        } catch (error) {
+            console.log("Register Error:", error.response?.data || error.message);
+            return {
+                success: false,
+                error: error.response?.data?.errors?.join(", ") || "Registration failed"
+            };
+        }
     };
 
     const logout = async () => {
+        try {
+            // Optional: call backend logout
+            await client.delete("/auth/logout");
+        } catch (e) {
+            console.log("Logout API error", e);
+        }
         await SecureStore.deleteItemAsync("auth_token");
         setToken(null);
         setUser(null);
     };
 
     return (
-        <AuthContext.Provider value={{ user, token, isLoading, login, register, logout }}>
+        <AuthContext.Provider value={{ user, token, isLoading, login, register, logout, restoreSession }}>
             {children}
         </AuthContext.Provider>
     );
 };
 
 export const useAuth = () => useContext(AuthContext);
+
+export default AuthProvider;
+

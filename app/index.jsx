@@ -26,7 +26,7 @@ function RootNavigator() {
       {user ? (
         <>
           <Stack.Screen name="AppTabs" component={AppTabs} />
-          <Stack.Screen name="SongDetail" component={SongDetail} options={{ presentation: 'card' }} />
+          <Stack.Screen name="SongDetail" component={SongDetail} options={{ presentation: 'modal' }} />
           <Stack.Screen name="CreateReview" component={CreateReview} options={{ presentation: 'modal' }} />
         </>
       ) : (

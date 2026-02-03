@@ -28,3 +28,4 @@ export const themes = {
         textSecondary: "#FCA5A5",
     },
 };
+export default themes;
