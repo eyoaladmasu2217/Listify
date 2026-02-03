@@ -37,28 +37,28 @@ export default function HomeTab() {
                 const mockFeed = [
                     {
                         user: { username: "Eyoal Yeshewas", avatar: "https://ui-avatars.com/api/?name=Eyoal+Yeshewas&background=0D8ABC&color=fff" },
-                        song: { title: "Abbey Road", artist: "The Beatles", cover: "https://upload.wikimedia.org/en/4/42/Beatles_-_Abbey_Road.jpg" },
+                        song: { title: "Abbey Road", artist: "The Beatles", cover: require("../../assets/abbey.png") },
                         rating: 5,
                         likes: 42,
                         comments: 12
                     },
                     {
                         user: { username: "Estifanos", avatar: "https://ui-avatars.com/api/?name=Estifanos&background=black&color=fff" },
-                        song: { title: "As It Was", artist: "Harry Styles", cover: "https://upload.wikimedia.org/wikipedia/en/b/b1/Harry_Styles_-_As_It_Was.png" },
+                        song: { title: "As It Was", artist: "Harry Styles", cover: require("../../assets/Nirvana.webp") },
                         rating: 4,
                         likes: 31,
                         comments: 7
                     },
                     {
                         user: { username: "Nati", avatar: "https://ui-avatars.com/api/?name=Nati&background=random" },
-                        song: { title: "Bohemian Rhapsody", artist: "Queen", cover: "https://upload.wikimedia.org/wikipedia/en/9/9f/Bohemian_Rhapsody.png" },
+                        song: { title: "Bohemian Rhapsody", artist: "Queen", cover: require("../../assets/Radiohead - The Bends.jpg") },
                         rating: 5,
                         likes: 89,
                         comments: 24
                     },
                     {
                         user: { username: "Kidus Amare", avatar: "https://ui-avatars.com/api/?name=Kidus+Amare&background=random" },
-                        song: { title: "Starboy", artist: "The Weeknd", cover: "https://upload.wikimedia.org/wikipedia/en/3/39/The_Weeknd_-_Starboy.png" },
+                        song: { title: "Starboy", artist: "The Weeknd", cover: require("../../assets/abbey.png") },
                         rating: 4,
                         likes: 15,
                         comments: 3
@@ -214,7 +214,7 @@ export default function HomeTab() {
                                 </View>
 
                                 {/* Right: Album Art */}
-                                <Image source={{ uri: item.song?.cover }} style={styles.feedCover} />
+                                <Image source={typeof item.song?.cover === 'string' ? { uri: item.song?.cover } : item.song?.cover} style={styles.feedCover} />
                             </View>
                         ))}
                     </View>
