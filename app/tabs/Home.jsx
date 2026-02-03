@@ -1,7 +1,6 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ActivityIndicator, Image, ImageBackground, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import client from "../api/client";
 import LogoTitle from "../components/LogoTitle";
 import { useTheme } from "../context/ThemeContext";
 
@@ -10,6 +9,26 @@ export default function HomeTab() {
     const [feed, setFeed] = useState([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState("Friends"); // "Friends" or "Trending"
+    const [autoScroll, setAutoScroll] = useState(true);
+    const scrollRef = useRef(null);
+    const scrollX = useRef(0);
+
+    useEffect(() => {
+        let interval;
+        if (autoScroll) {
+            interval = setInterval(() => {
+                scrollX.current += 1; // Adjust speed here (higher = faster)
+                if (scrollRef.current) {
+                    scrollRef.current.scrollTo({ x: scrollX.current, animated: false });
+                }
+            }, 30); // Interval in ms
+        }
+        return () => clearInterval(interval);
+    }, [autoScroll]);
+
+    const handleTouch = () => {
+        setAutoScroll(false);
+    };
 
     useEffect(() => {
         const fetchFeed = async () => {
@@ -88,7 +107,18 @@ export default function HomeTab() {
                 <LogoTitle fontSize={28} color={theme.text} style={{ justifyContent: 'flex-start', marginBottom: 20 }} />
 
                 {/* Featured Carousel - Compact Overlay Style */}
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 20 }}>
+                <ScrollView
+                    ref={scrollRef}
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    style={{ marginBottom: 20 }}
+                    onScrollBeginDrag={handleTouch}
+                    onScroll={({ nativeEvent }) => {
+                        // Keep our scrollX ref in sync for when auto-scroll is resumed or for manual tracking
+                        scrollX.current = nativeEvent.contentOffset.x;
+                    }}
+                    scrollEventThrottle={16}
+                >
                     {[
                         {
                             title: "Abbey Road",
@@ -106,7 +136,8 @@ export default function HomeTab() {
                             cover: require("../../assets/Radiohead - The Bends.jpg"),
                         }
                     ].map((album, index) => (
-                        <TouchableOpacity key={index} activeOpacity={0.9}>
+                        <TouchableOpacity key={index} activeOpacity={0.9} onPressIn={handleTouch}>
+
                             <ImageBackground
                                 source={album.cover}
                                 style={styles.featuredCard}
