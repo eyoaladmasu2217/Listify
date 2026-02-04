@@ -1,0 +1,9 @@
+one:
+  title: Discovery
+  artist: one
+  deezer_id: 2001
+
+two:
+  title: OK Computer
+  artist: two
+  deezer_id: 2002

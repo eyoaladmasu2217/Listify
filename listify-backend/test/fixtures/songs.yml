@@ -1,0 +1,13 @@
+one:
+  title: One More Time
+  artist: one
+  album: one
+  deezer_id: 3001
+  artist_name: Daft Punk
+
+two:
+  title: Karma Police
+  artist: two
+  album: two
+  deezer_id: 3002
+  artist_name: Radiohead

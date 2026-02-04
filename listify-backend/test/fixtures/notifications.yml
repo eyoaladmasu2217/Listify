@@ -1,0 +1,13 @@
+one:
+  recipient: two
+  actor: one
+  action: followed
+  notifiable: one (Follow)
+  read_at: null
+
+two:
+  recipient: one
+  actor: two
+  action: liked
+  notifiable: one (Like)
+  read_at: 2025-12-30 06:00:00

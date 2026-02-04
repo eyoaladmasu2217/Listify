@@ -1,0 +1,9 @@
+one:
+  action_type: followed
+  actor: one
+  target: two (User)
+
+two:
+  action_type: liked
+  actor: two
+  target: one (Song)
