@@ -18,7 +18,9 @@ export const AuthProvider = ({ children }) => {
                 // Fetch the latest user info
                 try {
                     const res = await client.get("/users/me");
-                    setUser(res.data);
+                    // Extract the core user object from { user: { ... } }
+                    const userData = res.data.user || res.data;
+                    setUser(userData);
                 } catch (e) {
                     console.log("Restoring user from token decode (Offline/API Down)");
                     try {

@@ -30,9 +30,7 @@ export default function CreateReview({ route, navigation }) {
             navigation.goBack();
         } catch (error) {
             console.log("Review Error:", error.response?.data || error.message);
-            // FALLBACK FOR DEMO:
-            Alert.alert("Success (Demo Mode)", "Your review has been saved locally!");
-            navigation.goBack();
+            Alert.alert("Save Failed", "Could not connect to the server to save your review. Check if the Rails server is running with -b 0.0.0.0");
         } finally {
             setLoading(false);
         }

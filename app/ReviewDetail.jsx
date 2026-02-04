@@ -56,9 +56,9 @@ export default function ReviewDetail({ route, navigation }) {
                 <View style={styles.userHeader}>
                     <Image source={{ uri: avatar }} style={styles.avatar} />
                     <View>
-                        <Text style={[styles.username, { color: theme.text }]}>{username}</Text>
+                        <Text style={[styles.username, { color: theme.text }]}>{String(username)}</Text>
                         <Text style={[styles.actionText, { color: theme.textSecondary }]}>
-                            {`${review.action_type || "rated"}`}
+                            {String(review.action_type || "rated")}
                         </Text>
                     </View>
                 </View>
@@ -97,7 +97,7 @@ export default function ReviewDetail({ route, navigation }) {
                         {renderStars(rating)}
                         <Text style={[styles.ratingValue, { color: theme.text }]}>{rating}</Text>
                     </View>
-                    {reviewText && (
+                    {!!reviewText && (
                         <Text style={[styles.reviewText, { color: theme.text }]}>
                             {`"${reviewText}"`}
                         </Text>

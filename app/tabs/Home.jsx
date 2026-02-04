@@ -33,52 +33,23 @@ export default function HomeTab({ navigation }) {
 
     useEffect(() => {
         const fetchFeed = async () => {
+            setLoading(true);
             try {
-                // MOCK DATA for layout demo if API fails or is empty
-                const mockFeed = [
-                    {
-                        user: { username: "Eyoal Yeshewas", avatar: "https://ui-avatars.com/api/?name=Eyoal+Yeshewas&background=0D8ABC&color=fff" },
-                        song: { title: "Abbey Road", artist: "The Beatles", cover: require("../../assets/abbey.png") },
-                        rating: 5,
-                        likes: 42,
-                        comments: 12
-                    },
-                    {
-                        user: { username: "Estifanos", avatar: "https://ui-avatars.com/api/?name=Estifanos&background=black&color=fff" },
-                        song: { title: "As It Was", artist: "Harry Styles", cover: require("../../assets/Nirvana.webp") },
-                        rating: 4,
-                        likes: 31,
-                        comments: 7
-                    },
-                    {
-                        user: { username: "Nati", avatar: "https://ui-avatars.com/api/?name=Nati&background=random" },
-                        song: { title: "Bohemian Rhapsody", artist: "Queen", cover: require("../../assets/Radiohead - The Bends.jpg") },
-                        rating: 5,
-                        likes: 89,
-                        comments: 24
-                    },
-                    {
-                        user: { username: "Kidus Amare", avatar: "https://ui-avatars.com/api/?name=Kidus+Amare&background=random" },
-                        song: { title: "Starboy", artist: "The Weeknd", cover: require("../../assets/abbey.png") },
-                        rating: 4,
-                        likes: 15,
-                        comments: 3
-                    }
-                ];
+                // Determine endpoint based on active tab
+                const endpoint = activeTab === "Friends" ? "/feed/following" : "/feed/explore";
 
                 try {
-                    const res = await client.get("/feed/following");
+                    const res = await client.get(endpoint);
                     if (res.data && res.data.length > 0) {
                         setFeed(res.data);
                     } else {
-                        // If API returns empty, use mock
-                        setFeed(mockFeed);
+                        // Keep current feed or show empty if no data from API
+                        setFeed([]);
                     }
                 } catch (apiError) {
-                    console.log("API Error, using mock", apiError.message);
-                    setFeed(mockFeed);
+                    console.log("API Error fetching feed", apiError.message);
+                    setFeed([]);
                 }
-
             } catch (e) {
                 console.log("Error fetching feed", e);
             } finally {
@@ -86,7 +57,7 @@ export default function HomeTab({ navigation }) {
             }
         };
         fetchFeed();
-    }, []);
+    }, [activeTab]);
 
     const renderStars = (rating) => {
         return (
@@ -219,8 +190,8 @@ export default function HomeTab({ navigation }) {
                                         <View style={styles.feedHeader}>
                                             <Image source={{ uri: avatar }} style={styles.avatar} />
                                             <Text style={[styles.feedUser, { color: theme.textSecondary }]}>
-                                                <Text style={{ color: theme.text, fontWeight: "600" }}>{`${username} `}</Text>
-                                                {`${item.action_type || "rated"}`}
+                                                <Text style={{ color: theme.text, fontWeight: "600" }}>{String(username)}</Text>
+                                                {` ${String(item.action_type || "rated")}`}
                                             </Text>
                                         </View>
 

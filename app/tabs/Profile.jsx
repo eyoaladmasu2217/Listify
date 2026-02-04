@@ -1,35 +1,58 @@
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { useEffect, useState } from "react";
-import { ActivityIndicator, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import client from "../api/client";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 
-export default function ProfileTab() {
+export default function ProfileTab({ navigation }) {
     const { theme } = useTheme();
     const { user, logout } = useAuth();
     const [profile, setProfile] = useState(null);
+    const [reviews, setReviews] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const fetchProfile = async () => {
+        const fetchProfileData = async () => {
             try {
-                const res = await client.get("/users/me");
-                setProfile(res.data);
+                // Fetch profile and reviews in parallel
+                const [profileRes, reviewsRes] = await Promise.all([
+                    client.get("/users/me"),
+                    client.get("/reviews/me")
+                ]);
+                setProfile(profileRes.data.user || profileRes.data);
+                setReviews(reviewsRes.data);
             } catch (e) {
-                console.log("Error fetching profile", e);
+                console.log("Error fetching profile data", e.message);
+                // Fallback for demo if API fails
             } finally {
                 setLoading(false);
             }
         };
-        fetchProfile();
+        fetchProfileData();
     }, []);
 
     if (loading) return <View style={[styles.container, { backgroundColor: theme.background, justifyContent: 'center' }]}><ActivityIndicator color={theme.primary} /></View>;
 
     const displayUser = profile || user;
 
+    const renderStars = (rating) => {
+        return (
+            <View style={{ flexDirection: 'row', gap: 2 }}>
+                {[1, 2, 3, 4, 5].map((star) => (
+                    <Ionicons
+                        key={star}
+                        name={star <= rating ? "star" : (star - 0.5 <= rating ? "star-half" : "star-outline")}
+                        size={12}
+                        color="#4ade80"
+                    />
+                ))}
+            </View>
+        );
+    };
+
     return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
+        <ScrollView style={[styles.container, { backgroundColor: theme.background }]} contentContainerStyle={{ paddingBottom: 40 }}>
             <View style={styles.header}>
                 <Image
                     source={{ uri: displayUser?.profile_picture_url || "https://ui-avatars.com/api/?name=" + (displayUser?.username || "User") }}
@@ -37,7 +60,7 @@ export default function ProfileTab() {
                 />
                 <View style={styles.stats}>
                     <View style={styles.statItem}>
-                        <Text style={[styles.statNumber, { color: theme.text }]}>{displayUser?.reviews_count || 0}</Text>
+                        <Text style={[styles.statNumber, { color: theme.text }]}>{displayUser?.reviews_count || reviews.length}</Text>
                         <Text style={[styles.statLabel, { color: theme.textSecondary }]}>Reviews</Text>
                     </View>
                     <View style={styles.statItem}>
@@ -54,10 +77,53 @@ export default function ProfileTab() {
             <Text style={[styles.username, { color: theme.text }]}>@{displayUser?.username || "username"}</Text>
             <Text style={[styles.bio, { color: theme.textSecondary }]}>{displayUser?.bio || "Music enthusiast."}</Text>
 
-            <TouchableOpacity onPress={logout} style={[styles.logoutButton, { borderColor: theme.surface }]}>
+            {/* Reviews Section */}
+            <View style={styles.sectionHeader}>
+                <Text style={[styles.sectionTitle, { color: theme.text }]}>My Reviews</Text>
+                <Text style={[styles.reviewCount, { color: theme.textSecondary }]}>{reviews.length}</Text>
+            </View>
+
+            {reviews.length === 0 ? (
+                <View style={[styles.emptyState, { backgroundColor: theme.surface }]}>
+                    <Ionicons name="musical-notes-outline" size={40} color={theme.textSecondary} />
+                    <Text style={[styles.emptyText, { color: theme.textSecondary }]}>No reviews yet. Start rating!</Text>
+                </View>
+            ) : (
+                <View style={styles.reviewsList}>
+                    {reviews.map((item) => (
+                        <TouchableOpacity
+                            key={item.id}
+                            style={[styles.reviewCard, { backgroundColor: theme.surface }]}
+                            onPress={() => navigation.navigate("ReviewDetail", { review: { ...item, actor: displayUser } })}
+                        >
+                            <Image
+                                source={{ uri: item.song?.cover_url || "https://via.placeholder.com/150" }}
+                                style={styles.songCover}
+                            />
+                            <View style={styles.reviewMain}>
+                                <Text style={[styles.songTitle, { color: theme.text }]} numberOfLines={1}>{item.song?.title}</Text>
+                                <Text style={[styles.songArtist, { color: theme.textSecondary }]} numberOfLines={1}>{item.song?.artist_name}</Text>
+                                <View style={styles.ratingRow}>
+                                    {renderStars(item.rating)}
+                                    <Text style={[styles.timeAgo, { color: theme.textSecondary }]}>
+                                        {new Date(item.created_at).toLocaleDateString()}
+                                    </Text>
+                                </View>
+                                {!!item.review_text && (
+                                    <Text style={[styles.reviewSnippet, { color: theme.textSecondary }]} numberOfLines={2}>
+                                        {`"${String(item.review_text)}"`}
+                                    </Text>
+                                )}
+                            </View>
+                        </TouchableOpacity>
+                    ))}
+                </View>
+            )}
+
+            <TouchableOpacity onPress={logout} style={[styles.logoutButton, { borderColor: theme.surface, marginTop: 40 }]}>
                 <Text style={{ color: "#ef4444", fontWeight: "600" }}>Log Out</Text>
             </TouchableOpacity>
-        </View>
+        </ScrollView>
     );
 }
 
@@ -71,5 +137,29 @@ const styles = StyleSheet.create({
     statLabel: { fontSize: 12 },
     username: { fontSize: 24, fontWeight: "bold", marginBottom: 5 },
     bio: { fontSize: 16, marginBottom: 30 },
-    logoutButton: { padding: 15, borderRadius: 12, borderWidth: 1, alignItems: "center", marginTop: "auto" },
+
+    // Reviews Section
+    sectionHeader: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 10, marginBottom: 15 },
+    sectionTitle: { fontSize: 20, fontWeight: 'bold' },
+    reviewCount: { fontSize: 14, fontWeight: '600', opacity: 0.6 },
+    reviewsList: { gap: 12 },
+    reviewCard: {
+        flexDirection: 'row',
+        padding: 12,
+        borderRadius: 16,
+        gap: 12,
+        alignItems: 'center'
+    },
+    songCover: { width: 60, height: 60, borderRadius: 8 },
+    reviewMain: { flex: 1 },
+    songTitle: { fontSize: 16, fontWeight: '700', marginBottom: 2 },
+    songArtist: { fontSize: 14, opacity: 0.7, marginBottom: 4 },
+    ratingRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 },
+    timeAgo: { fontSize: 10, opacity: 0.5 },
+    reviewSnippet: { fontSize: 12, fontStyle: 'italic', opacity: 0.8 },
+
+    emptyState: { padding: 40, borderRadius: 16, alignItems: 'center', gap: 10, marginTop: 10 },
+    emptyText: { fontSize: 14, textAlign: 'center' },
+
+    logoutButton: { padding: 15, borderRadius: 12, borderWidth: 1, alignItems: "center" },
 });
