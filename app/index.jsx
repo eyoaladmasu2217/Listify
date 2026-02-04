@@ -4,6 +4,7 @@ import AppTabs from "./AppTabs";
 import CreateReview from "./CreateReview";
 import LoginScreen from "./Login";
 import RegisterScreen from "./Register";
+import ReviewDetail from "./ReviewDetail";
 import SongDetail from "./SongDetail";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
@@ -27,6 +28,7 @@ function RootNavigator() {
         <>
           <Stack.Screen name="AppTabs" component={AppTabs} />
           <Stack.Screen name="SongDetail" component={SongDetail} options={{ presentation: 'modal' }} />
+          <Stack.Screen name="ReviewDetail" component={ReviewDetail} options={{ presentation: 'modal' }} />
           <Stack.Screen name="CreateReview" component={CreateReview} options={{ presentation: 'modal' }} />
         </>
       ) : (

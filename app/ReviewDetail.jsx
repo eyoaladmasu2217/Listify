@@ -1,0 +1,172 @@
+import Ionicons from "@expo/vector-icons/Ionicons";
+import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useTheme } from "./context/ThemeContext";
+
+export default function ReviewDetail({ route, navigation }) {
+    const { theme } = useTheme();
+    const { review } = route.params || {};
+
+    // Normalize review data
+    const actor = review.actor || review.user;
+    const target = review.target || {};
+    const isReview = review.action_type === "review" || (!review.action_type && review.song);
+
+    // Extract display data
+    const username = actor?.username || "Someone";
+    const avatar = actor?.profile_picture_url || actor?.avatar || "https://ui-avatars.com/api/?background=random";
+    const songInfo = isReview ? (review.target ? {
+        id: target.song_id,
+        title: target.song_title,
+        artist: target.song_artist,
+        cover: target.song_cover
+    } : review.song) : null;
+    const rating = target.rating || review.rating || 0;
+    const reviewText = target.review_text || review.review_text;
+
+    const renderStars = (rating) => {
+        return (
+            <View style={{ flexDirection: 'row', gap: 4 }}>
+                {[1, 2, 3, 4, 5].map((star) => {
+                    let iconName = "star-outline";
+                    if (rating >= star) iconName = "star";
+                    else if (rating >= star - 0.5) iconName = "star-half";
+                    return <Ionicons key={star} name={iconName} size={20} color="#4ade80" />;
+                })}
+            </View>
+        );
+    };
+
+    return (
+        <View style={[styles.container, { backgroundColor: theme.background }]}>
+            {/* Modal Handle */}
+            <View style={styles.modalHandleContainer}>
+                <View style={[styles.modalHandle, { backgroundColor: theme.surface }]} />
+            </View>
+
+            {/* Close Button */}
+            <TouchableOpacity
+                style={styles.closeButton}
+                onPress={() => navigation.goBack()}
+            >
+                <Ionicons name="close-circle" size={32} color={theme.textSecondary} />
+            </TouchableOpacity>
+
+            <ScrollView contentContainerStyle={styles.scrollContent}>
+                {/* User Header */}
+                <View style={styles.userHeader}>
+                    <Image source={{ uri: avatar }} style={styles.avatar} />
+                    <View>
+                        <Text style={[styles.username, { color: theme.text }]}>{username}</Text>
+                        <Text style={[styles.actionText, { color: theme.textSecondary }]}>
+                            {`${review.action_type || "rated"}`}
+                        </Text>
+                    </View>
+                </View>
+
+                {/* Clickable Album Cover */}
+                <TouchableOpacity
+                    style={styles.coverContainer}
+                    onPress={() => navigation.navigate("CreateReview", {
+                        song: {
+                            id: songInfo?.id,
+                            title: songInfo?.title,
+                            artist: songInfo?.artist,
+                            cover: typeof songInfo?.cover === 'number' ? Image.resolveAssetSource(songInfo.cover).uri : (songInfo?.cover || "https://via.placeholder.com/150")
+                        }
+                    })}
+                >
+                    <Image
+                        source={typeof songInfo?.cover === 'number' ? songInfo.cover : { uri: songInfo?.cover || "https://via.placeholder.com/150" }}
+                        style={styles.cover}
+                    />
+                    <View style={styles.coverOverlay}>
+                        <Ionicons name="star" size={24} color="white" />
+                        <Text style={styles.coverOverlayText}>Tap to rate</Text>
+                    </View>
+                </TouchableOpacity>
+
+                {/* Song Info */}
+                <View style={styles.songInfo}>
+                    <Text style={[styles.title, { color: theme.text }]}>{songInfo?.title || "Unknown Song"}</Text>
+                    <Text style={[styles.artist, { color: theme.textSecondary }]}>{songInfo?.artist || "Unknown Artist"}</Text>
+                </View>
+
+                {/* Rating & Review */}
+                <View style={[styles.reviewContent, { backgroundColor: theme.surface }]}>
+                    <View style={styles.ratingRow}>
+                        {renderStars(rating)}
+                        <Text style={[styles.ratingValue, { color: theme.text }]}>{rating}</Text>
+                    </View>
+                    {reviewText && (
+                        <Text style={[styles.reviewText, { color: theme.text }]}>
+                            {`"${reviewText}"`}
+                        </Text>
+                    )}
+                </View>
+
+                {/* Interaction Footer */}
+                <View style={styles.footer}>
+                    <TouchableOpacity style={styles.interactionItem}>
+                        <Ionicons name="heart-outline" size={24} color={theme.textSecondary} />
+                        <Text style={[styles.interactionText, { color: theme.textSecondary }]}>{review.likes || 0}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.interactionItem}>
+                        <Ionicons name="chatbubble-outline" size={24} color={theme.textSecondary} />
+                        <Text style={[styles.interactionText, { color: theme.textSecondary }]}>{review.comments || 0}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.interactionItem}>
+                        <Ionicons name="share-social-outline" size={24} color={theme.textSecondary} />
+                    </TouchableOpacity>
+                </View>
+            </ScrollView>
+        </View>
+    );
+}
+
+const styles = StyleSheet.create({
+    container: { flex: 1 },
+    modalHandleContainer: { height: 20, justifyContent: 'center', alignItems: 'center', marginTop: 10 },
+    modalHandle: { width: 40, height: 4, borderRadius: 2 },
+    closeButton: { position: 'absolute', top: 15, right: 15, zIndex: 10 },
+    scrollContent: { padding: 20 },
+    userHeader: { flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 25, marginTop: 10 },
+    avatar: { width: 50, height: 50, borderRadius: 25 },
+    username: { fontSize: 18, fontWeight: "bold" },
+    actionText: { fontSize: 14 },
+    coverContainer: {
+        width: "100%",
+        aspectRatio: 1,
+        borderRadius: 16,
+        overflow: "hidden",
+        marginBottom: 20,
+        elevation: 5,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+    },
+    cover: { width: "100%", height: "100%" },
+    coverOverlay: {
+        position: "absolute",
+        bottom: 12,
+        right: 12,
+        backgroundColor: "rgba(0,0,0,0.6)",
+        flexDirection: "row",
+        alignItems: "center",
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 20,
+        gap: 6
+    },
+    coverOverlayText: { color: "white", fontWeight: "600", fontSize: 12 },
+    songInfo: { alignItems: "center", marginBottom: 25 },
+    title: { fontSize: 24, fontWeight: "bold", textAlign: "center" },
+    artist: { fontSize: 18, textAlign: "center" },
+    reviewContent: { width: "100%", padding: 20, borderRadius: 16, marginBottom: 25 },
+    ratingRow: { flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 15 },
+    ratingValue: { fontSize: 18, fontWeight: "bold" },
+    reviewText: { fontSize: 16, lineHeight: 24, fontStyle: "italic" },
+    footer: { flexDirection: "row", gap: 25, borderTopWidth: 1, borderTopColor: "rgba(255,255,255,0.1)", paddingTop: 20 },
+    interactionItem: { flexDirection: "row", alignItems: "center", gap: 8 },
+    interactionText: { fontSize: 16, fontWeight: "600" }
+});

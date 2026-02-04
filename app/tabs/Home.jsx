@@ -209,13 +209,8 @@ export default function HomeTab({ navigation }) {
                                 <TouchableOpacity
                                     key={item.id || index}
                                     style={[styles.feedCard, { backgroundColor: "#1A1A1A" }]}
-                                    onPress={() => navigation.navigate("SongDetail", {
-                                        song: {
-                                            id: songInfo?.id,
-                                            title: songInfo?.title,
-                                            artist: songInfo?.artist,
-                                            cover: typeof songInfo?.cover === 'number' ? Image.resolveAssetSource(songInfo.cover).uri : (songInfo?.cover || "https://via.placeholder.com/150")
-                                        }
+                                    onPress={() => navigation.navigate("ReviewDetail", {
+                                        review: item
                                     })}
                                 >
                                     {/* Left Content */}
