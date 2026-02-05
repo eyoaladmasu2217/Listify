@@ -103,7 +103,7 @@ export default function SettingsModal({ visible, onClose }) {
                                 <ThemeSwatch color="#b4760bff" selected={themeName === "purple"} onPress={() => handleThemeSelect("purple")} theme={theme} />
                                 <ThemeSwatch color="#e24747ff" selected={themeName === "red"} onPress={() => handleThemeSelect("red")} theme={theme} />
                             </View>
-                            {renderItem("Dark Mode", "moon-outline", "switch", true, () => { })}
+
                         </View>
 
                         {/* 2. Lists & Reviews */}
