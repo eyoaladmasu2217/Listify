@@ -2,6 +2,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import client from "../api/client";
+import SettingsModal from "../components/SettingsModal";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 
@@ -11,6 +12,7 @@ export default function ProfileTab({ navigation }) {
     const [profile, setProfile] = useState(null);
     const [reviews, setReviews] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [isSettingsVisible, setSettingsVisible] = useState(false);
 
     useEffect(() => {
         const fetchProfileData = async () => {
@@ -53,6 +55,12 @@ export default function ProfileTab({ navigation }) {
 
     return (
         <ScrollView style={[styles.container, { backgroundColor: theme.background }]} contentContainerStyle={{ paddingBottom: 40 }}>
+            <SettingsModal visible={isSettingsVisible} onClose={() => setSettingsVisible(false)} />
+            <View style={styles.topBar}>
+                <TouchableOpacity onPress={() => setSettingsVisible(true)}>
+                    <Ionicons name="settings-outline" size={24} color={theme.text} />
+                </TouchableOpacity>
+            </View>
             <View style={styles.header}>
                 <Image
                     source={{ uri: displayUser?.profile_picture_url || "https://ui-avatars.com/api/?name=" + (displayUser?.username || "User") }}
@@ -120,15 +128,14 @@ export default function ProfileTab({ navigation }) {
                 </View>
             )}
 
-            <TouchableOpacity onPress={logout} style={[styles.logoutButton, { borderColor: theme.surface, marginTop: 40 }]}>
-                <Text style={{ color: "#ef4444", fontWeight: "600" }}>Log Out</Text>
-            </TouchableOpacity>
+
         </ScrollView>
     );
 }
 
 const styles = StyleSheet.create({
     container: { flex: 1, padding: 20, paddingTop: 60 },
+    topBar: { flexDirection: "row", justifyContent: "flex-end", marginBottom: 10 },
     header: { flexDirection: "row", alignItems: "center", marginBottom: 20 },
     avatar: { width: 80, height: 80, borderRadius: 40, marginRight: 20 },
     stats: { flex: 1, flexDirection: "row", justifyContent: "space-around" },

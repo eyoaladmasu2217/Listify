@@ -28,6 +28,10 @@ module Api
       rescue ActiveRecord::RecordNotFound
         render json: { error: "User not found" }, status: :not_found
       end
+
+      def user_params
+        params.permit(:username, :bio, :profile_picture_url, :theme, :notifications_enabled, :is_private)
+      end
     end
   end
 end
