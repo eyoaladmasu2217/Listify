@@ -12,4 +12,12 @@ class Song < ApplicationRecord
                         size: { less_than: 5.megabytes }
 
   has_many :reviews, dependent: :destroy
+  
+  def cover_url
+    if cover_art.attached?
+      Rails.application.routes.url_helpers.rails_blob_url(cover_art, host: ENV.fetch("DEFAULT_URL_HOST", "localhost:3000"))
+    else
+      album&.cover_url
+    end
+  end
 end

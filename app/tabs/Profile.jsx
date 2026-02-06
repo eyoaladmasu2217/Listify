@@ -53,6 +53,10 @@ export default function ProfileTab({ navigation }) {
         );
     };
 
+    const profilePic = (displayUser?.profile_picture_url && displayUser.profile_picture_url.trim() !== "")
+        ? displayUser.profile_picture_url
+        : `https://picsum.photos/seed/${displayUser?.username || "user"}/200`;
+
     return (
         <ScrollView style={[styles.container, { backgroundColor: theme.background }]} contentContainerStyle={{ paddingBottom: 40 }}>
             <SettingsModal visible={isSettingsVisible} onClose={() => setSettingsVisible(false)} />
@@ -63,7 +67,7 @@ export default function ProfileTab({ navigation }) {
             </View>
             <View style={styles.header}>
                 <Image
-                    source={{ uri: displayUser?.profile_picture_url || "https://ui-avatars.com/api/?name=" + (displayUser?.username || "User") }}
+                    source={{ uri: profilePic }}
                     style={styles.avatar}
                 />
                 <View style={styles.stats}>

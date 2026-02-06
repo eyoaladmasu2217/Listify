@@ -13,7 +13,9 @@ export default function ReviewDetail({ route, navigation }) {
 
     // Extract display data
     const username = actor?.username || "Someone";
-    const avatar = actor?.profile_picture_url || actor?.avatar || "https://ui-avatars.com/api/?background=random";
+    const avatar = (actor?.profile_picture_url && actor.profile_picture_url.trim() !== "")
+        ? actor.profile_picture_url
+        : `https://picsum.photos/seed/${actor?.username || "user"}/100`;
     const songInfo = isReview ? (review.target ? {
         id: target.song_id,
         title: target.song_title,

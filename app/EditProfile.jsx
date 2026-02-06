@@ -61,7 +61,7 @@ export default function EditProfile({ navigation }) {
                 {/* Avatar Edit */}
                 <View style={styles.avatarSection}>
                     <Image
-                        source={{ uri: profilePic || "https://ui-avatars.com/api/?name=" + (username || "User") }}
+                        source={{ uri: (profilePic && profilePic.trim() !== "") ? profilePic : `https://picsum.photos/seed/${username || "user"}/200` }}
                         style={styles.avatar}
                     />
                     <TouchableOpacity style={styles.changePicButton}>
