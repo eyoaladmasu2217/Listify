@@ -1,4 +1,5 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { useNavigation } from "@react-navigation/native";
 import { useState } from "react";
 import { Alert, Modal, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from "react-native";
 import { useAuth } from "../context/AuthContext";
@@ -7,10 +8,16 @@ import { useTheme } from "../context/ThemeContext";
 export default function SettingsModal({ visible, onClose }) {
     const { theme, setTheme, themeName } = useTheme();
     const { logout, user } = useAuth();
+    const navigation = useNavigation();
 
     // Local state for MVP toggles (would sync to backend in real implementation)
     const [notificationsEnabled, setNotificationsEnabled] = useState(true);
     const [isPrivate, setIsPrivate] = useState(false);
+
+    const handleNavigate = (screen) => {
+        onClose();
+        navigation.navigate(screen);
+    };
 
     const handleThemeSelect = (name) => {
         setTheme(name);
@@ -88,9 +95,9 @@ export default function SettingsModal({ visible, onClose }) {
                         {/* 1. Account & Profile */}
                         <View style={styles.section}>
                             {renderSectionHeader("Account & Profile")}
-                            {renderItem("Edit Profile", "person-outline")}
-                            {renderItem("Change Password", "lock-closed-outline")}
-                            {renderItem("Email", "mail-outline")}
+                            {renderItem("Edit Profile", "person-outline", "chevron", false, () => handleNavigate("EditProfile"))}
+                            {renderItem("Change Password", "lock-closed-outline", "chevron", false, () => handleNavigate("ChangePassword"))}
+                            {renderItem("Email", "mail-outline", "chevron", false, () => handleNavigate("EditEmail"))}
                         </View>
 
                         {/* 4. Appearance (Theme) - Custom Render */}

@@ -39,7 +39,7 @@ module Api
         end
 
         def configure_account_update_params
-          devise_parameter_sanitizer.permit(:account_update, keys: %i[username bio profile_picture_url])
+          devise_parameter_sanitizer.permit(:account_update, keys: %i[username bio profile_picture_url email password password_confirmation])
         end
       end
     end

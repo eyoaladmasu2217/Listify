@@ -13,29 +13,32 @@ export const AuthProvider = ({ children }) => {
     const restoreSession = async () => {
         try {
             const storedToken = await SecureStore.getItemAsync("auth_token");
-            if (storedToken) {
-                setToken(storedToken);
-                // Fetch the latest user info
-                try {
-                    const res = await client.get("/users/me");
-                    // Extract the core user object from { user: { ... } }
-                    const userData = res.data.user || res.data;
-                    setUser(userData);
-                } catch (e) {
-                    console.log("Restoring user from token decode (Offline/API Down)");
+                if (storedToken) {
+                    setToken(storedToken);
+                    // Fetch the latest user info
                     try {
-                        // If it's our specific mock token, just use a dummy user
-                        if (storedToken === "mock.jwt.token") {
-                            setUser({ id: 1, username: "demo_user", email: "demo@example.com" });
-                        } else {
-                            const decoded = jwtDecode(storedToken);
-                            setUser({ id: decoded.sub, ...decoded });
+                        const res = await client.get("/users/me");
+                        const userData = res.data.user || res.data;
+                        setUser(userData);
+                    } catch (e) {
+                        console.log("Restoring user from token decode (Backend error or offline)");
+                        try {
+                            if (storedToken === "mock.jwt.token") {
+                                setUser({ id: 1, username: "demo_user", email: "demo@example.com" });
+                            } else if (storedToken.split('.').length === 3) {
+                                const decoded = jwtDecode(storedToken);
+                                setUser({ id: decoded.sub, ...decoded });
+                            } else {
+                                console.log("Stored token is not a valid JWT format, clearing...");
+                                await SecureStore.deleteItemAsync("auth_token");
+                                setToken(null);
+                            }
+                        } catch (decodeErr) {
+                            console.log("Token decode failed:", decodeErr.message);
+                            setToken(null);
                         }
-                    } catch (decodeErr) {
-                        console.log("Token decode failed", decodeErr.message);
                     }
                 }
-            }
         } catch (error) {
             console.log("Error restoring session:", error);
         } finally {
@@ -44,7 +47,25 @@ export const AuthProvider = ({ children }) => {
     };
 
     useEffect(() => {
+        // Global interceptor for 401 errors
+        const interceptor = client.interceptors.response.use(
+            (response) => response,
+            async (error) => {
+                if (error.response?.status === 401) {
+                    console.log("Unauthorized (401) detected, logging out...");
+                    await SecureStore.deleteItemAsync("auth_token");
+                    setToken(null);
+                    setUser(null);
+                }
+                return Promise.reject(error);
+            }
+        );
+
         restoreSession();
+
+        return () => {
+            client.interceptors.response.eject(interceptor);
+        };
     }, []);
 
     const login = async (email, password) => {
@@ -130,7 +151,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, token, isLoading, login, register, logout, restoreSession }}>
+        <AuthContext.Provider value={{ user, setUser, token, isLoading, login, register, logout, restoreSession }}>
             {children}
         </AuthContext.Provider>
     );

@@ -12,7 +12,11 @@ const DEV_API_URL = Platform.select({
 
 const client = axios.create({
     baseURL: DEV_API_URL,
-    timeout: 5000, // 5 second timeout to prevent hanging on connection issues
+    timeout: 5000,
+    headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+    }
 });
 
 client.interceptors.request.use(async (config) => {

@@ -101,7 +101,7 @@ Review.all.each do |review|
   Activity.find_or_create_by!(
     actor: review.user,
     target: review,
-    action_type: "review"
+    action_type: "reviewed"
   )
 end
 

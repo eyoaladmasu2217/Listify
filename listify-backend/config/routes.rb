@@ -52,7 +52,7 @@ Rails.application.routes.draw do
         end
       end
 
-      namespace :feed do
+      scope :feed, controller: "feeds" do
         get :following
         get :explore
       end

@@ -13,16 +13,16 @@ class ActivitySerializer < Blueprinter::Base
     when "User"
       { type: "User", id: target.id, username: target.username }
     when "Song"
-      { type: "Song", id: target.id, title: target.title, artist_name: target.artist_name }
+      { type: "Song", id: target.id, title: target.title, artist_name: target.artist_name, cover_url: target.album&.cover_url }
     when "Review"
       { 
         type: "Review", 
         id: target.id, 
         rating: target.rating, 
         song_id: target.song_id,
-        song_title: target.song.title,
-        song_artist: target.song.artist_name,
-        song_cover: target.song.cover_url,
+        song_title: target.song&.title,
+        song_artist: target.song&.artist_name,
+        song_cover: target.song&.album&.cover_url,
         review_text: target.review_text
       }
     when "Collection"

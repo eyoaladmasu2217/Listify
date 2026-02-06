@@ -25,7 +25,7 @@ class Content::CreateReviewService < BaseService
     Activity.create!(
       actor: @user,
       action_type: "reviewed",
-      target: review.song
+      target: review
     )
   end
 end

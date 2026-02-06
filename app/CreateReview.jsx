@@ -23,14 +23,15 @@ export default function CreateReview({ route, navigation }) {
                 review: {
                     song_id: song?.id,
                     rating: rating,
-                    review_text: text // Matches backend parameter name
+                    review_text: text
                 }
             });
             Alert.alert("Success", "Review published!");
             navigation.goBack();
         } catch (error) {
             console.log("Review Error:", error.response?.data || error.message);
-            Alert.alert("Save Failed", "Could not connect to the server to save your review. Check if the Rails server is running with -b 0.0.0.0");
+            const errorMsg = error.response?.data?.error || error.message || "Unknown error";
+            Alert.alert("Save Failed", errorMsg);
         } finally {
             setLoading(false);
         }
@@ -38,7 +39,7 @@ export default function CreateReview({ route, navigation }) {
 
     const handleStarPress = (starIndex, event) => {
         const { locationX } = event.nativeEvent;
-        const starWidth = 44; // size in icon
+        const starWidth = 44; 
         const isHalf = locationX < starWidth / 2;
         const newRating = isHalf ? starIndex - 0.5 : starIndex;
         setRating(newRating);
@@ -46,41 +47,34 @@ export default function CreateReview({ route, navigation }) {
 
     return (
         <View style={[styles.container, { backgroundColor: theme.background }]}>
-            {/* Header */}
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
                     <Ionicons name="chevron-back" size={28} color={theme.text} />
                 </TouchableOpacity>
                 <Text style={[styles.headerTitle, { color: theme.text }]}>Rate Album</Text>
-                <View style={{ width: 40 }} /> {/* Spacer */}
+                <View style={{ width: 40 }} />
             </View>
 
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-                {/* Large Album Art */}
                 <View style={styles.largeCoverContainer}>
-                    <Image source={{ uri: song?.cover }} style={styles.largeCover} />
+                    <Image source={song?.cover ? { uri: song.cover } : require("../assets/abbey.png")} style={styles.largeCover} />
                 </View>
 
-                {/* Song Info */}
                 <View style={styles.metaContainer}>
                     <Text style={[styles.songTitle, { color: theme.text }]}>{song?.title || "Album Title"}</Text>
                     <Text style={[styles.songArtist, { color: theme.textSecondary }]}>
-                        {song?.artist || "Artist Name"} • {song?.year || "2024"}
+                        {(song?.artist || "Artist Name") + " • " + (song?.year || "2024")}
                     </Text>
-                    {rating > 0 ? (
+                    {rating > 0 && (
                         <Text style={[styles.ratingValue, { color: "#4ade80" }]}>{rating.toFixed(1)}</Text>
-                    ) : null}
+                    )}
                 </View>
 
-                {/* Star Rating Section */}
                 <View style={styles.starsContainer}>
                     {[1, 2, 3, 4, 5].map((star) => {
                         let iconName = "star-outline";
-                        if (rating >= star) {
-                            iconName = "star";
-                        } else if (rating >= star - 0.5) {
-                            iconName = "star-half";
-                        }
+                        if (rating >= star) iconName = "star";
+                        else if (rating >= star - 0.5) iconName = "star-half";
 
                         return (
                             <TouchableOpacity
@@ -89,17 +83,12 @@ export default function CreateReview({ route, navigation }) {
                                 onPress={(e) => handleStarPress(star, e)}
                                 style={styles.starPadding}
                             >
-                                <Ionicons
-                                    name={iconName}
-                                    size={44}
-                                    color="#4ade80" // Figma Green
-                                />
+                                <Ionicons name={iconName} size={44} color="#4ade80" />
                             </TouchableOpacity>
                         );
                     })}
                 </View>
 
-                {/* Review Input */}
                 <View style={[styles.inputWrapper, { borderColor: theme.surface }]}>
                     <TextInput
                         style={[styles.input, { color: theme.text }]}
@@ -111,9 +100,8 @@ export default function CreateReview({ route, navigation }) {
                     />
                 </View>
 
-                {/* Save Button */}
                 <TouchableOpacity
-                    style={[styles.saveButton, { backgroundColor: "#58bc6b" }]} // Figma primary green
+                    style={[styles.saveButton, { backgroundColor: "#58bc6b" }]}
                     onPress={handlePublish}
                     disabled={loading}
                 >
@@ -173,7 +161,7 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         padding: 15,
         marginBottom: 40,
-        backgroundColor: "#161616" // Dark surface
+        backgroundColor: "#161616"
     },
     input: {
         flex: 1,
