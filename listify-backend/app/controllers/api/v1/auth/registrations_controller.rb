@@ -15,8 +15,10 @@ module Api
 
         def respond_with(resource, _opts = {})
           if resource.persisted?
+            token = request.env['warden-jwt_auth.token']
             render json: {
               status: { code: 201, message: "Signed up successfully." },
+              access_token: token,
               user: {
                 id: resource.id,
                 username: resource.username,

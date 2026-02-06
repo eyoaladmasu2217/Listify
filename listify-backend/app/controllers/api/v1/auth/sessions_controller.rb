@@ -8,9 +8,11 @@ module Api
 
         def respond_with(resource, _opts = {})
           refresh_token = resource.refresh_tokens.create!
+          token = request.env['warden-jwt_auth.token']
 
           render json: {
             user: UserSerializer.render_as_hash(resource, view: :simple),
+            access_token: token,
             refresh_token: refresh_token.token,
             jwt_version: resource.jwt_version
           }, status: :ok

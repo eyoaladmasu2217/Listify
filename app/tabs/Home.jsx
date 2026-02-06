@@ -94,19 +94,22 @@ export default function HomeTab({ navigation }) {
                 >
                     {[
                         {
+                            id: 2,
                             title: "Abbey Road",
                             artist: "The Beatles",
                             cover: require("../../assets/abbey.png"),
                         },
                         {
-                            title: "Nevermind",
-                            artist: "Nirvana",
-                            cover: require("../../assets/Nirvana.webp"),
+                            id: 1,
+                            title: "Thriller",
+                            artist: "Michael Jackson",
+                            cover: require("../../assets/abbey.png"), // Fallback if thriller cover missing
                         },
                         {
-                            title: "The Bends",
-                            artist: "Radiohead",
-                            cover: require("../../assets/Radiohead - The Bends.jpg"),
+                            id: 3,
+                            title: "Random Access Memories",
+                            artist: "Daft Punk",
+                            cover: require("../../assets/abbey.png"), // Fallback
                         }
                     ].map((album, index) => (
                         <TouchableOpacity

@@ -53,7 +53,8 @@ export const AuthProvider = ({ children }) => {
                 user: { email, password }
             });
 
-            const { access_token, user: userData } = response.data;
+            const userData = response.data.user || response.data;
+            const access_token = response.data.access_token || response.headers['authorization']?.split(' ')[1];
 
             if (access_token) {
                 await SecureStore.setItemAsync("auth_token", access_token);
@@ -61,7 +62,7 @@ export const AuthProvider = ({ children }) => {
                 setUser(userData);
                 return { success: true };
             }
-            return { success: false, error: "Token not found in response" };
+            return { success: false, error: "Access token not found in server response" };
         } catch (error) {
             console.log("Login Error:", error.response?.data || error.message);
 
@@ -97,7 +98,8 @@ export const AuthProvider = ({ children }) => {
                 user: { username, email, password }
             });
 
-            const { access_token, user: userData } = response.data;
+            const userData = response.data.user || response.data;
+            const access_token = response.data.access_token || response.headers['authorization']?.split(' ')[1];
 
             if (access_token) {
                 await SecureStore.setItemAsync("auth_token", access_token);
@@ -105,7 +107,7 @@ export const AuthProvider = ({ children }) => {
                 setUser(userData);
                 return { success: true };
             }
-            return { success: false, error: "Registration successful but token missing" };
+            return { success: false, error: "Registration successful but token not found" };
         } catch (error) {
             console.log("Register Error:", error.response?.data || error.message);
             return {
