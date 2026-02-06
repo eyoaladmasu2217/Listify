@@ -31,33 +31,35 @@ export default function HomeTab({ navigation }) {
         setAutoScroll(false);
     };
 
-    useEffect(() => {
-        const fetchFeed = async () => {
-            setLoading(true);
-            try {
-                // Determine endpoint based on active tab
-                const endpoint = activeTab === "Friends" ? "/feed/following" : "/feed/explore";
-
+    useFocusEffect(
+        useCallback(() => {
+            const fetchFeed = async () => {
+                setLoading(true);
                 try {
-                    const res = await client.get(endpoint);
-                    if (res.data && res.data.length > 0) {
-                        setFeed(res.data);
-                    } else {
-                        // Keep current feed or show empty if no data from API
+                    // Determine endpoint based on active tab
+                    const endpoint = activeTab === "Friends" ? "/feed/following" : "/feed/explore";
+
+                    try {
+                        const res = await client.get(endpoint);
+                        if (res.data && res.data.length > 0) {
+                            setFeed(res.data);
+                        } else {
+                            // Keep current feed or show empty if no data from API
+                            setFeed([]);
+                        }
+                    } catch (apiError) {
+                        console.log("API Error fetching feed", apiError.message);
                         setFeed([]);
                     }
-                } catch (apiError) {
-                    console.log("API Error fetching feed", apiError.message);
-                    setFeed([]);
+                } catch (e) {
+                    console.log("Error fetching feed", e);
+                } finally {
+                    setLoading(false);
                 }
-            } catch (e) {
-                console.log("Error fetching feed", e);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchFeed();
-    }, [activeTab]);
+            };
+            fetchFeed();
+        }, [activeTab])
+    );
 
     const renderStars = (rating) => {
         return (

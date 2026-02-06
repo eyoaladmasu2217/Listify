@@ -1,5 +1,5 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import client from "./api/client";
 import { useAuth } from "./context/AuthContext";
@@ -20,38 +20,40 @@ export default function UserProfile({ route, navigation }) {
     // Let's just render but hide follow button.
     const isOwnProfile = currentUser?.id === (profile?.id || userId);
 
-    useEffect(() => {
-        const fetchProfileData = async () => {
-            try {
-                // If we don't have an ID, we can't fetch.
-                const targetId = userId || profile?.id;
-                if (!targetId) return;
+    useFocusEffect(
+        useCallback(() => {
+            const fetchProfileData = async () => {
+                try {
+                    // If we don't have an ID, we can't fetch.
+                    const targetId = userId || profile?.id;
+                    if (!targetId) return;
 
-                const [profileRes, reviewsRes] = await Promise.all([
-                    client.get(`/users/${targetId}`),
-                    client.get(`/users/${targetId}/reviews`)
-                ]);
-                
-                const userData = profileRes.data.user || profileRes.data;
-                setProfile(userData);
-                setReviews(reviewsRes.data);
-                
-                // Set isFollowing from userData if available (we added is_following to serializer)
-                if (userData.is_following !== undefined) {
-                    setIsFollowing(userData.is_following);
+                    const [profileRes, reviewsRes] = await Promise.all([
+                        client.get(`/users/${targetId}`),
+                        client.get(`/users/${targetId}/reviews`)
+                    ]);
+                    
+                    const userData = profileRes.data.user || profileRes.data;
+                    setProfile(userData);
+                    setReviews(reviewsRes.data);
+                    
+                    // Set isFollowing from userData if available (we added is_following to serializer)
+                    if (userData.is_following !== undefined) {
+                        setIsFollowing(userData.is_following);
+                    }
+
+                } catch (e) {
+                    console.log("Error fetching user profile", e.message);
+                } finally {
+                    setLoading(false);
                 }
+            };
 
-            } catch (e) {
-                console.log("Error fetching user profile", e.message);
-            } finally {
-                setLoading(false);
+            if (userId || profile?.id) {
+                fetchProfileData();
             }
-        };
-
-        if (userId || profile?.id) {
-            fetchProfileData();
-        }
-    }, [userId]);
+        }, [userId])
+    );
 
     const handleFollowToggle = async () => {
         if (!profile?.id) return;
