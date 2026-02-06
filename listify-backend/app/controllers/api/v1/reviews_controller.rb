@@ -7,8 +7,8 @@ module Api
       
       # GET /api/v1/reviews/me
       def me
-        reviews = current_user.reviews.includes(:song)
-        render json: reviews, include: { song: { only: [ :id, :title, :artist_name, :cover_url ] } }, status: :ok
+        reviews = current_user.reviews.includes(:song, :user).order(created_at: :desc)
+        render json: ReviewSerializer.render(reviews), status: :ok
       end
 
       # POST /api/v1/reviews
@@ -23,8 +23,8 @@ module Api
 
       # GET /api/v1/songs/:song_id/reviews
       def index
-        reviews = @song.reviews.includes(:user)
-        render json: reviews, include: { user: { only: [ :id, :username, :profile_picture_url ] } }, status: :ok
+        reviews = @song.reviews.includes(:user).order(created_at: :desc)
+        render json: ReviewSerializer.render(reviews), status: :ok
       end
 
       # PUT /api/v1/reviews/:id

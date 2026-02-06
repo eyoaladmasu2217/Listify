@@ -17,7 +17,9 @@ class UserSerializer < Blueprinter::Base
 
   field :is_following do |user, options|
     if options[:current_user]
-      options[:current_user].following.exists?(user.id)
+      is_following = options[:current_user].following.exists?(user.id)
+      Rails.logger.info "DEBUG: UserSerializer checking is_following for #{user.username} by #{options[:current_user].username}: #{is_following}"
+      is_following
     else
       false
     end

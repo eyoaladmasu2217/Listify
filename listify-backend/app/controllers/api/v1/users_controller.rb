@@ -34,8 +34,8 @@ module Api
 
       def reviews
         # Consistent with ReviewsController#me
-        reviews = @user.reviews.includes(:song).order(created_at: :desc)
-        render json: reviews, include: { song: { only: [ :id, :title, :artist_name, :cover_url ] } }, status: :ok
+        reviews = @user.reviews.includes(:song, :user).order(created_at: :desc)
+        render json: ReviewSerializer.render(reviews), status: :ok
       end
 
       private

@@ -1,5 +1,6 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { useState } from "react";
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback, useState } from "react";
 import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import client from "./api/client";
 import { useAuth } from "./context/AuthContext";
@@ -34,6 +35,9 @@ export default function UserProfile({ route, navigation }) {
                     ]);
                     
                     const userData = profileRes.data.user || profileRes.data;
+                    console.log(`Fetched reviews for ${targetId}:`, reviewsRes.data.length); 
+                    console.log(`User's stored review count:`, userData.reviews_count);
+                    
                     setProfile(userData);
                     setReviews(reviewsRes.data);
                     
@@ -58,21 +62,29 @@ export default function UserProfile({ route, navigation }) {
     const handleFollowToggle = async () => {
         if (!profile?.id) return;
         
+        // Prevent spamming
+        if (loading) return;
+
+        const originalState = isFollowing;
+        
         try {
             // Optimistic update
             setIsFollowing(!isFollowing);
             
-            if (isFollowing) {
-                // Unfollow
+            if (originalState) {
+                // Was following, so Unfollow
+                console.log("Unfollowing user", profile.id);
                 await client.delete(`/users/${profile.id}/follow`);
             } else {
-                // Follow
+                // Was not following, so Follow
+                console.log("Following user", profile.id);
                 await client.post(`/users/${profile.id}/follow`);
             }
         } catch (error) {
             console.log("Follow error:", error.response?.data || error.message);
             // Revert on error
-            setIsFollowing(!isFollowing);
+            setIsFollowing(originalState);
+            alert(`Action failed: ${error.response?.data?.error || "Unknown error"}`);
         }
     };
 
