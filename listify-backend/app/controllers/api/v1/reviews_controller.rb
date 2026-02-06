@@ -65,7 +65,10 @@ module Api
       end
 
       def review_params
-        params.require(:review).permit(:song_id, :rating, :review_text)
+        params.require(:review).permit(
+          :song_id, :rating, :review_text,
+          song_data: [ :deezer_id, :title, :artist_name, :album_title, :cover_url, :preview_url, :duration_ms ]
+        )
       end
     end
   end

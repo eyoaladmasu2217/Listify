@@ -7,33 +7,59 @@ import { useTheme } from "../context/ThemeContext";
 export default function ExploreTab({ navigation }) {
     const { theme } = useTheme();
     const [songs, setSongs] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [trendingSongs, setTrendingSongs] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [searchQuery, setSearchQuery] = useState("");
 
+    // Initial Trending Songs
     useEffect(() => {
-        const fetchSongs = async () => {
-            const mockSongs = [
-                { id: 1, title: "Billie Jean", artist_name: "Michael Jackson", cover_url: "https://upload.wikimedia.org/wikipedia/en/5/55/Michael_Jackson_-_Thriller.png" },
-                { id: 2, title: "Come Together", artist_name: "The Beatles", cover_url: "https://upload.wikimedia.org/wikipedia/en/4/42/Beatles_-_Abbey_Road.jpg" },
-                { id: 3, title: "Get Lucky", artist_name: "Daft Punk", cover_url: "https://upload.wikimedia.org/wikipedia/en/a/a7/Random_Access_Memories.jpg" },
-                { id: 4, title: "Blinding Lights", artist_name: "The Weeknd", cover_url: "https://upload.wikimedia.org/wikipedia/en/e/e6/The_Weeknd_-_Blinding_Lights.png" }
-            ];
-
+        const fetchInitial = async () => {
             try {
                 const res = await client.get("/songs");
-                if (res.data && res.data.length > 0) {
-                    setSongs(res.data);
-                } else {
-                    setSongs(mockSongs);
-                }
+                if (res.data) setTrendingSongs(res.data);
             } catch (e) {
-                console.log("Error fetching songs, using mock", e.message);
-                setSongs(mockSongs);
+                console.log("Initial fetch error:", e);
+            }
+        };
+        fetchInitial();
+    }, []);
+
+    // Debounced search effect
+    useEffect(() => {
+        if (!searchQuery.trim()) {
+            setSongs([]);
+            return;
+        }
+
+        const delayDebounceFn = setTimeout(async () => {
+            setLoading(true);
+            try {
+                // Public Deezer search API
+                const response = await fetch(`https://api.deezer.com/search?q=${encodeURIComponent(searchQuery)}`);
+                const data = await response.json();
+                
+                if (data.data) {
+                    const normalizedSongs = data.data.map(item => ({
+                        id: 0, // 0 indicates it's not yet in our DB
+                        deezer_id: item.id,
+                        title: item.title,
+                        artist_name: item.artist.name,
+                        album_title: item.album.title,
+                        cover_url: item.album.cover_big,
+                        preview_url: item.preview,
+                        duration_ms: item.duration * 1000
+                    }));
+                    setSongs(normalizedSongs);
+                }
+            } catch (error) {
+                console.log("Search error:", error);
             } finally {
                 setLoading(false);
             }
-        };
-        fetchSongs();
-    }, []);
+        }, 500); // 500ms debounce
+
+        return () => clearTimeout(delayDebounceFn);
+    }, [searchQuery]);
 
     const renderSong = ({ item }) => (
         <TouchableOpacity
@@ -41,9 +67,13 @@ export default function ExploreTab({ navigation }) {
             onPress={() => navigation.navigate("SongDetail", {
                 song: {
                     id: item.id,
+                    deezer_id: item.deezer_id,
                     title: item.title,
                     artist: item.artist_name || "Unknown Artist",
-                    cover: item.cover_url || "https://upload.wikimedia.org/wikipedia/en/4/42/Beatles_-_Abbey_Road.jpg"
+                    album_title: item.album_title,
+                    cover: item.cover_url || "https://picsum.photos/seed/song/300",
+                    preview_url: item.preview_url,
+                    duration_ms: item.duration_ms
                 }
             })}
         >
@@ -71,18 +101,23 @@ export default function ExploreTab({ navigation }) {
                     placeholder="Artists, Songs, or Albums"
                     placeholderTextColor={theme.textSecondary}
                     style={[styles.searchInput, { color: theme.text }]}
+                    value={searchQuery}
+                    onChangeText={setSearchQuery}
+                    autoFocus
                 />
             </View>
 
-            <Text style={[styles.sectionTitle, { color: theme.text }]}>Trending Now</Text>
+            <Text style={[styles.sectionTitle, { color: theme.text }]}>
+                {searchQuery ? "Search Results" : "Trending Now"}
+            </Text>
 
             {loading ? (
                 <ActivityIndicator color={theme.primary} />
             ) : (
                 <FlatList
-                    data={songs}
+                    data={searchQuery ? songs : trendingSongs}
                     renderItem={renderSong}
-                    keyExtractor={(item) => item.id.toString()}
+                    keyExtractor={(item) => (item.id || item.deezer_id || Math.random()).toString()}
                     showsVerticalScrollIndicator={false}
                     ListEmptyComponent={
                         <Text style={{ color: theme.textSecondary, textAlign: "center", marginTop: 20 }}>

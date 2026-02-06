@@ -19,12 +19,27 @@ export default function CreateReview({ route, navigation }) {
 
         setLoading(true);
         try {
+            const reviewData = {
+                song_id: song?.id,
+                rating: rating,
+                review_text: text
+            };
+
+            // If it's a dynamic song from Deezer (id = 0), send the metadata
+            if (!song?.id || song.id === 0) {
+                reviewData.song_data = {
+                    deezer_id: song.deezer_id,
+                    title: song.title,
+                    artist_name: song.artist,
+                    album_title: song.album_title,
+                    cover_url: song.cover,
+                    preview_url: song.preview_url,
+                    duration_ms: song.duration_ms
+                };
+            }
+
             await client.post("/reviews", {
-                review: {
-                    song_id: song?.id,
-                    rating: rating,
-                    review_text: text
-                }
+                review: reviewData
             });
             Alert.alert("Success", "Review published!");
             navigation.goBack();
