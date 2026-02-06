@@ -1,8 +1,8 @@
 module Api
   module V1
     class CollectionsController < ApplicationController
-      before_action :authenticate_user!
-      before_action :set_collection, only: [ :add_item, :remove_item ]
+      # Authentication is handled by ApplicationController's authenticate_request!
+      before_action :set_collection, only: [ :add_item, :remove_item, :update, :destroy ]
 
       # POST /api/v1/collections
       def create
@@ -12,6 +12,21 @@ module Api
         else
           render json: { error: collection.errors.full_messages.to_sentence }, status: :unprocessable_entity
         end
+      end
+
+      # PUT /api/v1/collections/:id
+      def update
+        if @collection.update(collection_params)
+          render json: { id: @collection.id, title: @collection.title, description: @collection.description, public: @collection.public }, status: :ok
+        else
+          render json: { error: @collection.errors.full_messages.to_sentence }, status: :unprocessable_entity
+        end
+      end
+
+      # DELETE /api/v1/collections/:id
+      def destroy
+        @collection.destroy
+        render json: { message: "Collection deleted successfully" }, status: :ok
       end
 
       # POST /api/v1/collections/:id/items

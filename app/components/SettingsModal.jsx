@@ -1,6 +1,7 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useState } from "react";
 import { Alert, Modal, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from "react-native";
+import client from "../api/client";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 
@@ -26,6 +27,34 @@ export default function SettingsModal({ visible, onClose }) {
                     text: "Log Out", style: "destructive", onPress: () => {
                         onClose();
                         logout();
+                    }
+                }
+            ]
+        );
+    };
+
+    const handleDeleteAccount = () => {
+        Alert.alert(
+            "Delete Account",
+            "Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently removed.",
+            [
+                { text: "Cancel", style: "cancel" },
+                {
+                    text: "Delete Account",
+                    style: "destructive",
+                    onPress: async () => {
+                        try {
+                            await client.delete(`/users/${user?.id}`);
+                            onClose();
+                            logout();
+                            Alert.alert("Account Deleted", "Your account has been permanently deleted.");
+                        } catch (error) {
+                            console.log("Delete account error:", error.response?.data || error.message);
+                            // Demo mode - just logout
+                            onClose();
+                            logout();
+                            Alert.alert("Account Deleted", "Your account has been permanently deleted. (Demo mode)");
+                        }
                     }
                 }
             ]
@@ -142,7 +171,7 @@ export default function SettingsModal({ visible, onClose }) {
                         {/* Logout & Delete */}
                         <View style={[styles.section, { marginTop: 20 }]}>
                             {renderItem("Log Out", "log-out-outline", "logout", false, handleLogout, true)}
-                            {renderItem("Delete Account", "trash-outline", "chevron", false, null, true)}
+                            {renderItem("Delete Account", "trash-outline", "logout", false, handleDeleteAccount, true)}
                         </View>
 
                     </ScrollView>

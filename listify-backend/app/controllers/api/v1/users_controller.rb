@@ -21,6 +21,12 @@ module Api
         render json: UserSerializer.render(@user.following, view: :simple), status: :ok
       end
 
+      # DELETE /api/v1/users/:id
+      def destroy
+        current_user.destroy
+        render json: { message: "Account deleted successfully" }, status: :ok
+      end
+
       private
 
       def set_user

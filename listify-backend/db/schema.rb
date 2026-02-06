@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_12_30_045210) do
+ActiveRecord::Schema[8.0].define(version: 2026_02_05_124240) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -197,6 +197,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_30_045210) do
     t.datetime "updated_at", null: false
     t.string "profile_picture_url"
     t.integer "jwt_version", default: 0, null: false
+    t.string "theme", default: "green"
+    t.boolean "notifications_enabled", default: true
+    t.boolean "is_private", default: false
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
     t.index ["username"], name: "index_users_on_username", unique: true
