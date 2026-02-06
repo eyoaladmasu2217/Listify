@@ -84,22 +84,27 @@ export default function SongDetail({ route, navigation }) {
                     reviews.map((item) => (
                         <View key={item.id} style={[styles.reviewCard, { backgroundColor: theme.surface }]}>
                             <View style={styles.reviewHeader}>
-                                <Image
-                                    source={{ uri: item.user?.profile_picture_url || "https://ui-avatars.com/api/?background=random" }}
-                                    style={styles.reviewAvatar}
-                                />
-                                <View>
-                                    <Text style={[styles.reviewUser, { color: theme.text }]}>{String(item.user?.username || "anonymous")}</Text>
-                                    <View style={{ flexDirection: 'row', gap: 2 }}>
-                                        {[1, 2, 3, 4, 5].map((star) => {
-                                            const rating = item.rating || 0;
-                                            let iconName = "star-outline";
-                                            if (rating >= star) iconName = "star";
-                                            else if (rating >= star - 0.5) iconName = "star-half";
-                                            return <Ionicons key={star} name={iconName} size={14} color="#4ade80" />;
-                                        })}
+                                <TouchableOpacity 
+                                    style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}
+                                    onPress={() => navigation.navigate("UserProfile", { userId: item.user?.id })}
+                                >
+                                    <Image
+                                        source={{ uri: item.user?.profile_picture_url || "https://ui-avatars.com/api/?background=random" }}
+                                        style={styles.reviewAvatar}
+                                    />
+                                    <View>
+                                        <Text style={[styles.reviewUser, { color: theme.text }]}>{String(item.user?.username || "anonymous")}</Text>
+                                        <View style={{ flexDirection: 'row', gap: 2 }}>
+                                            {[1, 2, 3, 4, 5].map((star) => {
+                                                const rating = item.rating || 0;
+                                                let iconName = "star-outline";
+                                                if (rating >= star) iconName = "star";
+                                                else if (rating >= star - 0.5) iconName = "star-half";
+                                                return <Ionicons key={star} name={iconName} size={14} color="#4ade80" />;
+                                            })}
+                                        </View>
                                     </View>
-                                </View>
+                                </TouchableOpacity>
                             </View>
                             <Text style={[styles.reviewText, { color: theme.textSecondary }]}>
                                 {item.review_text || item.content}

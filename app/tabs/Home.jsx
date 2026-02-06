@@ -192,13 +192,16 @@ export default function HomeTab({ navigation }) {
                                     {/* Left Content */}
                                     <View style={{ flex: 1, marginRight: 15 }}>
                                         {/* User Header */}
-                                        <View style={styles.feedHeader}>
+                                        <TouchableOpacity 
+                                            style={styles.feedHeader}
+                                            onPress={() => navigation.navigate("UserProfile", { userId: actor?.id, user: actor })}
+                                        >
                                             <Image source={{ uri: avatar }} style={styles.avatar} />
                                             <Text style={[styles.feedUser, { color: theme.textSecondary }]}>
                                                 <Text style={{ color: theme.text, fontWeight: "600" }}>{String(username)}</Text>
                                                 {` ${String(item.action_type || "rated")}`}
                                             </Text>
-                                        </View>
+                                        </TouchableOpacity>
 
                                         {/* Song Info */}
                                         <Text style={[styles.feedTitle, { color: theme.text }]}>{songInfo?.title || ""}</Text>

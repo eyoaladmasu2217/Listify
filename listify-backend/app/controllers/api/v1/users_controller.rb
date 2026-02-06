@@ -3,10 +3,14 @@ module Api
     class UsersController < ApplicationController
       before_action :authenticate_user!
 
-      before_action :set_user, only: [ :followers, :following ]
+      before_action :set_user, only: [ :show, :followers, :following, :reviews ]
 
       def me
-        render json: { user: UserSerializer.render_as_hash(current_user, view: :simple) }, status: :ok
+        render json: { user: UserSerializer.render_as_hash(current_user, view: :profile, current_user: current_user) }, status: :ok
+      end
+
+      def show
+        render json: { user: UserSerializer.render_as_hash(@user, view: :profile, current_user: current_user) }, status: :ok
       end
 
       def update
@@ -26,6 +30,12 @@ module Api
 
       def following
         render json: UserSerializer.render(@user.following, view: :simple), status: :ok
+      end
+
+      def reviews
+        # Consistent with ReviewsController#me
+        reviews = @user.reviews.includes(:song).order(created_at: :desc)
+        render json: reviews, include: { song: { only: [ :id, :title, :artist_name, :cover_url ] } }, status: :ok
       end
 
       private

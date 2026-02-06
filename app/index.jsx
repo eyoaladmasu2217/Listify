@@ -9,6 +9,7 @@ import LoginScreen from "./Login";
 import RegisterScreen from "./Register";
 import ReviewDetail from "./ReviewDetail";
 import SongDetail from "./SongDetail";
+import UserProfile from "./UserProfile";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
 
@@ -34,6 +35,7 @@ function RootNavigator() {
           <Stack.Screen name="ReviewDetail" component={ReviewDetail} options={{ presentation: 'modal' }} />
           <Stack.Screen name="CreateReview" component={CreateReview} options={{ presentation: 'modal' }} />
           <Stack.Screen name="EditProfile" component={EditProfile} />
+          <Stack.Screen name="UserProfile" component={UserProfile} />
           <Stack.Screen name="ChangePassword" component={ChangePassword} />
           <Stack.Screen name="EditEmail" component={EditEmail} />
         </>

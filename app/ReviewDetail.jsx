@@ -96,7 +96,10 @@ export default function ReviewDetail({ route, navigation }) {
 
             <ScrollView contentContainerStyle={styles.scrollContent}>
                 {/* User Header */}
-                <View style={styles.userHeader}>
+                <TouchableOpacity 
+                    style={styles.userHeader}
+                    onPress={() => navigation.navigate("UserProfile", { userId: actor?.id, user: actor })}
+                >
                     <Image source={{ uri: avatar }} style={styles.avatar} />
                     <View>
                         <Text style={[styles.username, { color: theme.text }]}>{String(username)}</Text>
@@ -104,7 +107,7 @@ export default function ReviewDetail({ route, navigation }) {
                             {String(review.action_type || "rated")}
                         </Text>
                     </View>
-                </View>
+                </TouchableOpacity>
 
                 {/* Clickable Album Cover */}
                 <TouchableOpacity
