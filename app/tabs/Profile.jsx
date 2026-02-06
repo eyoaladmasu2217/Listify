@@ -12,25 +12,6 @@ export default function ProfileTab({ navigation }) {
     const [profile, setProfile] = useState(null);
     const [reviews, setReviews] = useState([]);
     const [isFollowing, setIsFollowing] = useState(false);
-
-    const handleFollowToggle = async () => {
-        if (!displayUser?.id) return;
-        
-        try {
-            if (isFollowing) {
-                // Unfollow
-                await client.delete(`/users/${displayUser.id}/follow`);
-                setIsFollowing(false);
-            } else {
-                // Follow
-                await client.post(`/users/${displayUser.id}/follow`);
-                setIsFollowing(true);
-            }
-        } catch (error) {
-            console.log("Follow error:", error.response?.data || error.message);
-        }
-    };
-
     const [loading, setLoading] = useState(true);
     const [isSettingsVisible, setSettingsVisible] = useState(false);
 
@@ -57,6 +38,26 @@ export default function ProfileTab({ navigation }) {
     if (loading) return <View style={[styles.container, { backgroundColor: theme.background, justifyContent: 'center' }]}><ActivityIndicator color={theme.primary} /></View>;
 
     const displayUser = profile || user;
+    const isOwnProfile = true; // This is always own profile in ProfileTab
+
+    const handleFollowToggle = async () => {
+        if (!displayUser?.id) return;
+        
+        try {
+            if (isFollowing) {
+                // Unfollow
+                await client.delete(`/users/${displayUser.id}/follow`);
+                setIsFollowing(false);
+            } else {
+                // Follow
+                await client.post(`/users/${displayUser.id}/follow`);
+                setIsFollowing(true);
+            }
+        } catch (error) {
+            console.log("Follow error:", error.response?.data || error.message);
+        }
+    };
+
 
     const renderStars = (rating) => {
         return (
