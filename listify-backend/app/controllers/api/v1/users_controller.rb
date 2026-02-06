@@ -1,21 +1,22 @@
 module Api
   module V1
     class UsersController < ApplicationController
-      before_action :authenticate_user!
+      # Authentication is handled by ApplicationController's before_action :authenticate_request!
+      # Remove the include Authenticable to avoid double authentication
 
-      before_action :set_user, only: [ :followers, :following ]
+      before_action :set_user, only: [:followers, :following]
 
+      # GET /api/v1/users/me
       def me
         render json: { user: UserSerializer.render_as_hash(current_user, view: :simple) }, status: :ok
       end
 
-      # The follow/unfollow logic is now handled in FollowsController (V1)
-      # and RelationshipsController (V2).
-
+      # GET /api/v1/users/:id/followers
       def followers
         render json: UserSerializer.render(@user.followers, view: :simple), status: :ok
       end
 
+      # GET /api/v1/users/:id/following
       def following
         render json: UserSerializer.render(@user.following, view: :simple), status: :ok
       end

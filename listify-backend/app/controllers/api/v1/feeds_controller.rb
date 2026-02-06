@@ -1,7 +1,8 @@
 module Api
   module V1
     class FeedsController < ApplicationController
-      before_action :authenticate_user!
+      # Authentication is handled by ApplicationController's before_action :authenticate_request!
+      # Remove the include Authenticable to avoid double authentication
 
       # GET /api/v1/feed/following
       def following

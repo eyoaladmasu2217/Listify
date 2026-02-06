@@ -38,6 +38,8 @@ export default function HomeTab({ navigation }) {
                 // Determine endpoint based on active tab
                 const endpoint = activeTab === "Friends" ? "/feed/following" : "/feed/explore";
 
+                console.log("Fetching feed for tab:", activeTab, "-> endpoint:", endpoint);
+
                 try {
                     const res = await client.get(endpoint);
                     if (res.data && res.data.length > 0) {

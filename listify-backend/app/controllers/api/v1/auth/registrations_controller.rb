@@ -2,21 +2,25 @@ module Api
   module V1
     module Auth
       class RegistrationsController < Devise::RegistrationsController
+        skip_before_action :authenticate_request!, only: :create
         respond_to :json
 
         before_action :configure_sign_up_params, only: [ :create ]
         before_action :configure_account_update_params, only: [ :update ]
 
-        def sign_up(resource_name, resource)
-          sign_in(resource_name, resource, store: false)
-        end
+        def create
+          build_resource(sign_up_params)
 
-        private
-
-        def respond_with(resource, _opts = {})
+          resource.save
+          yield resource if block_given?
+          
           if resource.persisted?
+            # Generate JWT token for auto-login
+            token = JsonWebToken.encode(sub: resource.id, email: resource.email)
+            
             render json: {
               status: { code: 201, message: "Signed up successfully." },
+              access_token: token,
               user: {
                 id: resource.id,
                 username: resource.username,
@@ -32,12 +36,18 @@ module Api
           end
         end
 
+        private
+
         def configure_sign_up_params
           devise_parameter_sanitizer.permit(:sign_up, keys: %i[username bio profile_picture_url])
         end
 
         def configure_account_update_params
           devise_parameter_sanitizer.permit(:account_update, keys: %i[username bio profile_picture_url])
+        end
+
+        def sign_up_params
+          params.require(:user).permit(:username, :email, :password, :bio, :profile_picture_url)
         end
       end
     end

@@ -11,7 +11,7 @@ Rails.application.routes.draw do
 
   namespace :api do
     namespace :v1 do
-      resources :notifications, only: [ :index ] do
+      resources :notifications, only: [:index] do
         member do
           patch :read
         end
@@ -19,57 +19,55 @@ Rails.application.routes.draw do
 
       get "users/me", to: "users#me"
 
-      resources :users, only: [ :show, :index, :update ] do
-        resource :follow, only: [ :create, :destroy ]
+      resources :users, only: [:show, :index, :update] do
+        resource :follow, only: [:create, :destroy]
         member do
           get :followers
           get :following
         end
       end
 
-      resources :songs, only: [ :index, :show ] do
-        resources :reviews, only: [ :index ]
+      resources :songs, only: [:index, :show] do
+        resources :reviews, only: [:index]
       end
 
-      resources :reviews, only: [ :create, :update, :destroy ] do
+      resources :reviews, only: [:create, :update, :destroy] do
         collection do
           get :me
         end
         member do
           post :like
         end
-        resources :comments, only: [ :create ], module: :reviews
+        resources :comments, only: [:create], module: :reviews
       end
 
-      # Legacy likes/comments support if needed, but standardizing on nested resources
-      resources :likes, only: [ :create, :destroy ]
-      resources :comments, only: [ :create ]
+      resources :likes, only: [:create, :destroy]
+      resources :comments, only: [:create]
 
-      resources :collections, only: [ :create, :show, :index, :update, :destroy ] do
+      resources :collections, only: [:create, :show, :index, :update, :destroy] do
         member do
           post "items", to: "collections#add_item"
           delete "items/:song_id", to: "collections#remove_item"
         end
       end
 
-      namespace :feed do
-        get :following
-        get :explore
-      end
+      # Fixed feed routes — pointing to FeedsController (plural)
+      get "feed/following", to: "feeds#following"
+      get "feed/explore",   to: "feeds#explore"
     end
 
     namespace :v2 do
-      resources :relationships, only: [ :create, :destroy ]
-      resources :refresh_tokens, only: [ :create ]
-      resources :songs, only: [ :index, :show ] do
+      resources :relationships, only: [:create, :destroy]
+      resources :refresh_tokens, only: [:create]
+      resources :songs, only: [:index, :show] do
         collection do
           post :sync
         end
       end
-      namespace :feed do
-        get :following
-        get :explore
-      end
+
+      # Fixed V2 feed routes
+      get "feed/following", to: "feeds#following"
+      get "feed/explore",   to: "feeds#explore"
     end
   end
 

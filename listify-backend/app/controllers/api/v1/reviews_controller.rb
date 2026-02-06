@@ -1,7 +1,7 @@
 module Api
   module V1
     class ReviewsController < ApplicationController
-      before_action :authenticate_user!
+      # Authentication is handled by ApplicationController's authenticate_request!
       before_action :set_song, only: [ :index ]
       before_action :set_review, only: [ :update, :destroy ]
       
