@@ -11,6 +11,26 @@ export default function ProfileTab({ navigation }) {
     const { user, logout } = useAuth();
     const [profile, setProfile] = useState(null);
     const [reviews, setReviews] = useState([]);
+    const [isFollowing, setIsFollowing] = useState(false);
+
+    const handleFollowToggle = async () => {
+        if (!displayUser?.id) return;
+        
+        try {
+            if (isFollowing) {
+                // Unfollow
+                await client.delete(`/users/${displayUser.id}/follow`);
+                setIsFollowing(false);
+            } else {
+                // Follow
+                await client.post(`/users/${displayUser.id}/follow`);
+                setIsFollowing(true);
+            }
+        } catch (error) {
+            console.log("Follow error:", error.response?.data || error.message);
+        }
+    };
+
     const [loading, setLoading] = useState(true);
     const [isSettingsVisible, setSettingsVisible] = useState(false);
 
@@ -89,6 +109,18 @@ export default function ProfileTab({ navigation }) {
             <Text style={[styles.username, { color: theme.text }]}>@{displayUser?.username || "username"}</Text>
             <Text style={[styles.bio, { color: theme.textSecondary }]}>{displayUser?.bio || "Music enthusiast."}</Text>
 
+            {/* Follow/Unfollow Button - only show when viewing another user */}
+            {!isOwnProfile && (
+                <TouchableOpacity 
+                    style={[styles.followButton, { backgroundColor: isFollowing ? theme.surface : theme.primary }]}
+                    onPress={handleFollowToggle}
+                >
+                    <Text style={[styles.followButtonText, { color: isFollowing ? theme.text : "white" }]}>
+                        {isFollowing ? "Following" : "Follow"}
+                    </Text>
+                </TouchableOpacity>
+            )}
+
             {/* Reviews Section */}
             <View style={styles.sectionHeader}>
                 <Text style={[styles.sectionTitle, { color: theme.text }]}>My Reviews</Text>
@@ -146,8 +178,21 @@ const styles = StyleSheet.create({
     statItem: { alignItems: "center" },
     statNumber: { fontSize: 20, fontWeight: "bold" },
     statLabel: { fontSize: 12 },
-    username: { fontSize: 24, fontWeight: "bold", marginBottom: 5 },
-    bio: { fontSize: 16, marginBottom: 30 },
+    username: { fontSize: 18, fontWeight: "bold", marginBottom: 5 },
+    bio: { fontSize: 14, marginBottom: 20 },
+    followButton: {
+        paddingVertical: 10,
+        paddingHorizontal: 30,
+        borderRadius: 20,
+        alignSelf: "center",
+        marginBottom: 20,
+        borderWidth: 1,
+        borderColor: "rgba(255,255,255,0.1)"
+    },
+    followButtonText: {
+        fontSize: 14,
+        fontWeight: "600"
+    },
 
     // Reviews Section
     sectionHeader: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 10, marginBottom: 15 },

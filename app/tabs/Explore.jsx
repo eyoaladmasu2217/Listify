@@ -24,39 +24,31 @@ export default function ExploreTab({ navigation }) {
         fetchInitial();
     }, []);
 
-    // Debounced search effect
-    useEffect(() => {
-        if (!searchQuery.trim()) {
+    const performSearch = async (query) => {
+        if (!query.trim()) {
             setSongs([]);
             return;
         }
-
-        const delayDebounceFn = setTimeout(async () => {
-            setLoading(true);
-            try {
-                // Public Deezer search API
-                const response = await fetch(`https://api.deezer.com/search?q=${encodeURIComponent(searchQuery)}`);
-                const data = await response.json();
-                
-                if (data.data) {
-                    const normalizedSongs = data.data.map(item => ({
-                        id: 0, // 0 indicates it's not yet in our DB
-                        deezer_id: item.id,
-                        title: item.title,
-                        artist_name: item.artist.name,
-                        album_title: item.album.title,
-                        cover_url: item.album.cover_big,
-                        preview_url: item.preview,
-                        duration_ms: item.duration * 1000
-                    }));
-                    setSongs(normalizedSongs);
-                }
-            } catch (error) {
-                console.log("Search error:", error);
-            } finally {
-                setLoading(false);
+        setLoading(true);
+        try {
+            const response = await client.get("/songs/search", {
+                params: { q: query }
+            });
+            if (response.data) {
+                setSongs(response.data);
             }
-        }, 500); // 500ms debounce
+        } catch (error) {
+            console.log("Search error:", error.response?.data || error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Debounced search effect
+    useEffect(() => {
+        const delayDebounceFn = setTimeout(() => {
+            if (searchQuery) performSearch(searchQuery);
+        }, 800);
 
         return () => clearTimeout(delayDebounceFn);
     }, [searchQuery]);
@@ -103,6 +95,8 @@ export default function ExploreTab({ navigation }) {
                     style={[styles.searchInput, { color: theme.text }]}
                     value={searchQuery}
                     onChangeText={setSearchQuery}
+                    onSubmitEditing={() => performSearch(searchQuery)}
+                    returnKeyType="search"
                     autoFocus
                 />
             </View>

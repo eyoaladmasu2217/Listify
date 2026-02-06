@@ -1,10 +1,51 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useState } from "react";
+import { Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import client from "./api/client";
 import { useTheme } from "./context/ThemeContext";
 
 export default function ReviewDetail({ route, navigation }) {
     const { theme } = useTheme();
     const { review } = route.params || {};
+    const [liked, setLiked] = useState(false);
+    const [likeCount, setLikeCount] = useState(review?.likes || 0);
+    const [commentCount, setCommentCount] = useState(review?.comments || 0);
+    const [commentText, setCommentText] = useState("");
+    const [showCommentInput, setShowCommentInput] = useState(false);
+
+    const handleLike = async () => {
+        try {
+            if (liked) {
+                // Unlike - would need the like ID from backend
+                console.log("Unlike not yet implemented");
+            } else {
+                // Like the review
+                await client.post(`/reviews/${review.id}/like`);
+                setLiked(true);
+                setLikeCount(prev => prev + 1);
+            }
+        } catch (error) {
+            console.log("Like error:", error.response?.data || error.message);
+        }
+    };
+
+    const handleComment = async () => {
+        if (!commentText.trim()) return;
+        
+        try {
+            await client.post("/comments", {
+                commentable_type: "Review",
+                commentable_id: review.id,
+                text: commentText
+            });
+            setCommentText("");
+            setShowCommentInput(false);
+            setCommentCount(prev => prev + 1);
+        } catch (error) {
+            console.log("Comment error:", error.response?.data || error.message);
+        }
+    };
+
 
     // Normalize review data
     const actor = review.actor || review.user;
@@ -108,18 +149,45 @@ export default function ReviewDetail({ route, navigation }) {
 
                 {/* Interaction Footer */}
                 <View style={styles.footer}>
-                    <TouchableOpacity style={styles.interactionItem}>
-                        <Ionicons name="heart-outline" size={24} color={theme.textSecondary} />
-                        <Text style={[styles.interactionText, { color: theme.textSecondary }]}>{review.likes || 0}</Text>
+                    <TouchableOpacity style={styles.interactionItem} onPress={handleLike}>
+                        <Ionicons 
+                            name={liked ? "heart" : "heart-outline"} 
+                            size={24} 
+                            color={liked ? "#ef4444" : theme.textSecondary} 
+                        />
+                        <Text style={[styles.interactionText, { color: theme.textSecondary }]}>{likeCount}</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.interactionItem}>
+                    <TouchableOpacity 
+                        style={styles.interactionItem} 
+                        onPress={() => setShowCommentInput(!showCommentInput)}
+                    >
                         <Ionicons name="chatbubble-outline" size={24} color={theme.textSecondary} />
-                        <Text style={[styles.interactionText, { color: theme.textSecondary }]}>{review.comments || 0}</Text>
+                        <Text style={[styles.interactionText, { color: theme.textSecondary }]}>{commentCount}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.interactionItem}>
                         <Ionicons name="share-social-outline" size={24} color={theme.textSecondary} />
                     </TouchableOpacity>
                 </View>
+
+                {/* Comment Input */}
+                {showCommentInput && (
+                    <View style={[styles.commentInputContainer, { backgroundColor: theme.surface }]}>
+                        <TextInput
+                            style={[styles.commentInput, { color: theme.text }]}
+                            placeholder="Add a comment..."
+                            placeholderTextColor={theme.textSecondary}
+                            value={commentText}
+                            onChangeText={setCommentText}
+                            multiline
+                        />
+                        <TouchableOpacity 
+                            style={[styles.commentButton, { backgroundColor: theme.primary }]}
+                            onPress={handleComment}
+                        >
+                            <Text style={styles.commentButtonText}>Post</Text>
+                        </TouchableOpacity>
+                    </View>
+                )}
             </ScrollView>
         </View>
     );
@@ -169,6 +237,29 @@ const styles = StyleSheet.create({
     ratingValue: { fontSize: 18, fontWeight: "bold" },
     reviewText: { fontSize: 16, lineHeight: 24, fontStyle: "italic" },
     footer: { flexDirection: "row", gap: 25, borderTopWidth: 1, borderTopColor: "rgba(255,255,255,0.1)", paddingTop: 20 },
-    interactionItem: { flexDirection: "row", alignItems: "center", gap: 8 },
-    interactionText: { fontSize: 16, fontWeight: "600" }
+    interactionItem: { flexDirection: "row", alignItems: "center", gap: 5 },
+    interactionText: { fontSize: 14 },
+    commentInputContainer: { 
+        flexDirection: "row", 
+        padding: 15, 
+        gap: 10, 
+        marginTop: 10,
+        borderRadius: 12,
+        alignItems: "center"
+    },
+    commentInput: { 
+        flex: 1, 
+        fontSize: 14,
+        minHeight: 40,
+        maxHeight: 100
+    },
+    commentButton: {
+        paddingHorizontal: 20,
+        paddingVertical: 10,
+        borderRadius: 20
+    },
+    commentButtonText: {
+        color: "white",
+        fontWeight: "600"
+    }
 });

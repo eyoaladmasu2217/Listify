@@ -3,7 +3,7 @@ module Api
     class ReviewsController < ApplicationController
       before_action :authenticate_user!
       before_action :set_song, only: [ :index ]
-      before_action :set_review, only: [ :update, :destroy ]
+      before_action :set_review, only: [ :update, :destroy, :like ]
       
       # GET /api/v1/reviews/me
       def me
@@ -47,6 +47,17 @@ module Api
           render json: { message: "Review deleted successfully" }, status: :ok
         else
           render json: { error: "You are not authorized to delete this review" }, status: :forbidden
+        end
+      end
+
+      # POST /api/v1/reviews/:id/like
+      def like
+        result = Social::LikeService.call(current_user, @review)
+        
+        if result.success?
+          render json: { success: true, message: "Review liked" }, status: :ok
+        else
+          render json: { error: result.errors.to_sentence }, status: :unprocessable_entity
         end
       end
 

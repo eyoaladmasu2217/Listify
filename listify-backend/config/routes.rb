@@ -28,6 +28,9 @@ Rails.application.routes.draw do
       end
 
       resources :songs, only: [ :index, :show ] do
+        collection do
+          get :search
+        end
         resources :reviews, only: [ :index ]
       end
 
