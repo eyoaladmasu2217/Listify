@@ -40,6 +40,15 @@ class User < ApplicationRecord
     { "jwt_version" => jwt_version }
   end
 
+  # Helper methods for counts
+  def followers_count
+    followers.count
+  end
+
+  def following_count
+    following.count
+  end
+
   # Validations
   validates :username, presence: true, uniqueness: true
 end
