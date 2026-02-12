@@ -20,7 +20,9 @@ Rails.application.routes.draw do
       get "users/me", to: "users#me"
 
       resources :users, only: [:show, :index, :update, :destroy] do
-        resource :follow, only: [:create, :destroy]
+        resource :follow, only: [:create, :destroy] do
+          get :status, on: :collection
+        end
         member do
           get :followers
           get :following

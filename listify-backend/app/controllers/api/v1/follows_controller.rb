@@ -26,6 +26,16 @@ module Api
         end
       end
 
+      # GET /api/v1/users/:user_id/follow/status
+      def status
+        is_following = current_user.active_follows.exists?(following_id: @target_user.id)
+        
+        render json: { 
+          is_following: is_following,
+          user_id: @target_user.id 
+        }, status: :ok
+      end
+
       private
 
       def set_target_user
