@@ -1,12 +1,12 @@
 import axios from "axios";
-import * as SecureStore from "expo-secure-store";
 import Constants from "expo-constants";
+import * as SecureStore from "expo-secure-store";
 
 // Get API host from environment or use default
 // Configure in app.json: { "extra": { "EXPO_PUBLIC_API_HOST": "192.168.1.100" } }
-const LOCAL_API_HOST = Constants?.expoConfig?.extra?.EXPO_PUBLIC_API_HOST || 
-                          Constants?.expoConfig?.extra?.host || 
-                          '192.168.129.188';
+const LOCAL_API_HOST = Constants?.expoConfig?.extra?.EXPO_PUBLIC_API_HOST ||
+  Constants?.expoConfig?.extra?.host ||
+  '192.168.1.4';
 
 // Determine base URL
 const getBaseURL = () => {
@@ -29,7 +29,7 @@ client.interceptors.request.use(async (config) => {
   if (config.url?.includes('/auth/logout')) {
     return config;
   }
-  
+
   try {
     const token = await SecureStore.getItemAsync("auth_token");
     if (token && token !== 'mock.jwt.token') {

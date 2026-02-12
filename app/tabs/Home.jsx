@@ -13,16 +13,27 @@ export default function HomeTab({ navigation }) {
     const [autoScroll, setAutoScroll] = useState(true);
     const scrollRef = useRef(null);
     const scrollX = useRef(0);
+    const direction = useRef(1); // 1 for right, -1 for left
+    const maxScroll = useRef(0);
+    const [layoutWidth, setLayoutWidth] = useState(0);
 
     useEffect(() => {
         let interval;
         if (autoScroll) {
             interval = setInterval(() => {
-                scrollX.current += 1; // Adjust speed here (higher = faster)
+                scrollX.current += direction.current;
+
                 if (scrollRef.current) {
                     scrollRef.current.scrollTo({ x: scrollX.current, animated: false });
                 }
-            }, 30); // Interval in ms
+
+                // Boundary detection
+                if (direction.current === 1 && scrollX.current >= maxScroll.current) {
+                    direction.current = -1;
+                } else if (direction.current === -1 && scrollX.current <= 0) {
+                    direction.current = 1;
+                }
+            }, 30);
         }
         return () => clearInterval(interval);
     }, [autoScroll]);
@@ -89,8 +100,13 @@ export default function HomeTab({ navigation }) {
                     style={{ marginBottom: 20 }}
                     onScrollBeginDrag={handleTouch}
                     onScroll={({ nativeEvent }) => {
-                        // Keep our scrollX ref in sync for when auto-scroll is resumed or for manual tracking
                         scrollX.current = nativeEvent.contentOffset.x;
+                    }}
+                    onContentSizeChange={(w) => {
+                        maxScroll.current = Math.max(0, w - layoutWidth);
+                    }}
+                    onLayout={(e) => {
+                        setLayoutWidth(e.nativeEvent.layout.width);
                     }}
                     scrollEventThrottle={16}
                 >
