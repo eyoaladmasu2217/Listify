@@ -49,6 +49,35 @@ class User < ApplicationRecord
     following.count
   end
 
+  # Class method for follow suggestions
+  def self.suggestions_for(user, limit: 5)
+    # Get users followed by people the current user follows (mutual connections)
+    mutual_suggestions = User
+      .joins("INNER JOIN follows AS f1 ON f1.following_id = users.id")
+      .joins("INNER JOIN follows AS f2 ON f2.follower_id = f1.follower_id")
+      .where("f2.following_id = ?", user.id)
+      .where.not(id: user.id)
+      .where.not(id: user.following.pluck(:id))
+      .distinct
+      .limit(limit)
+
+    # If not enough mutual suggestions, add popular users
+    if mutual_suggestions.count < limit
+      popular_users = User
+        .left_joins(:passive_follows)
+        .where.not(id: user.id)
+        .where.not(id: user.following.pluck(:id))
+        .where.not(id: mutual_suggestions.pluck(:id))
+        .group('users.id')
+        .order('COUNT(follows.id) DESC')
+        .limit(limit - mutual_suggestions.count)
+      
+      mutual_suggestions + popular_users
+    else
+      mutual_suggestions
+    end
+  end
+
   # Validations
   validates :username, presence: true, uniqueness: true
 end

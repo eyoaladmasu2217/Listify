@@ -56,6 +56,13 @@ Rails.application.routes.draw do
       # Fixed feed routes — pointing to FeedsController (plural)
       get "feed/following", to: "feeds#following"
       get "feed/explore",   to: "feeds#explore"
+
+      # Suggestions
+      resources :suggestions, only: [] do
+        collection do
+          get :users
+        end
+      end
     end
 
     namespace :v2 do
