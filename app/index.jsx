@@ -2,6 +2,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { ActivityIndicator, View } from "react-native";
 import AppTabs from "./AppTabs";
 import CreateReview from "./CreateReview";
+import ForgotPasswordScreen from "./ForgotPassword";
 import LoginScreen from "./Login";
 import RegisterScreen from "./Register";
 import ReviewDetail from "./ReviewDetail";
@@ -35,6 +36,7 @@ function RootNavigator() {
         <>
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="Register" component={RegisterScreen} />
+          <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
         </>
       )}
     </Stack.Navigator>
