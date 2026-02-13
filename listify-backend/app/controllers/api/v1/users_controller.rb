@@ -16,7 +16,7 @@ module Api
         if current_user.update(user_params)
           render json: { 
             message: "Profile updated successfully", 
-            user: UserSerializer.render_as_hash(current_user, view: :simple) 
+            user: UserSerializer.render_as_hash(current_user) 
           }, status: :ok
         else
           render json: { error: current_user.errors.full_messages.to_sentence }, status: :unprocessable_entity

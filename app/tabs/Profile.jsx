@@ -1,5 +1,6 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { useEffect, useState } from "react";
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback, useState } from "react";
 import { ActivityIndicator, Image, ScrollView, Share, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import client from "../api/client";
 import SettingsModal from "../components/SettingsModal";
@@ -14,25 +15,27 @@ export default function ProfileTab({ navigation }) {
     const [loading, setLoading] = useState(true);
     const [isSettingsVisible, setSettingsVisible] = useState(false);
 
-    useEffect(() => {
-        const fetchProfileData = async () => {
-            try {
-                // Fetch profile and reviews in parallel
-                const [profileRes, reviewsRes] = await Promise.all([
-                    client.get("/users/me"),
-                    client.get("/reviews/me")
-                ]);
-                setProfile(profileRes.data.user || profileRes.data);
-                setReviews(reviewsRes.data);
-            } catch (e) {
-                console.log("Error fetching profile data", e.message);
-                // Fallback for demo if API fails
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchProfileData();
+    const fetchProfileData = useCallback(async () => {
+        try {
+            // Fetch profile and reviews in parallel
+            const [profileRes, reviewsRes] = await Promise.all([
+                client.get("/users/me"),
+                client.get("/reviews/me")
+            ]);
+            setProfile(profileRes.data.user || profileRes.data);
+            setReviews(reviewsRes.data);
+        } catch (e) {
+            console.log("Error fetching profile data", e.message);
+        } finally {
+            setLoading(false);
+        }
     }, []);
+
+    useFocusEffect(
+        useCallback(() => {
+            fetchProfileData();
+        }, [fetchProfileData])
+    );
 
     if (loading) return <View style={[styles.container, { backgroundColor: theme.background, justifyContent: 'center' }]}><ActivityIndicator color={theme.primary} /></View>;
 

@@ -30,7 +30,9 @@ class User < ApplicationRecord
   # fall back to the legacy `profile_picture_url` DB column for backward compatibility.
   def profile_picture_url
     if profile_picture.attached?
-      Rails.application.routes.url_helpers.rails_blob_url(profile_picture, host: ENV.fetch("DEFAULT_URL_HOST", "localhost:3000"))
+      # Ensure host includes port if necessary for local development
+      host = ENV.fetch("DEFAULT_URL_HOST", "localhost:3000")
+      Rails.application.routes.url_helpers.rails_blob_url(profile_picture, host: host)
     else
       read_attribute(:profile_picture_url)
     end
