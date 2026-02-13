@@ -2,6 +2,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { ActivityIndicator, View } from "react-native";
 import AppTabs from "./AppTabs";
 import CreateReview from "./CreateReview";
+import EditProfileScreen from "./EditProfile";
 import ForgotPasswordScreen from "./ForgotPassword";
 import LoginScreen from "./Login";
 import RegisterScreen from "./Register";
@@ -28,6 +29,7 @@ function RootNavigator() {
       {user ? (
         <>
           <Stack.Screen name="AppTabs" component={AppTabs} />
+          <Stack.Screen name="EditProfile" component={EditProfileScreen} />
           <Stack.Screen name="SongDetail" component={SongDetail} options={{ presentation: 'modal' }} />
           <Stack.Screen name="ReviewDetail" component={ReviewDetail} options={{ presentation: 'modal' }} />
           <Stack.Screen name="CreateReview" component={CreateReview} options={{ presentation: 'modal' }} />

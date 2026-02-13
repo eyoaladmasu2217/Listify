@@ -1,6 +1,6 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useEffect, useState } from "react";
-import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Image, ScrollView, Share, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import client from "../api/client";
 import SettingsModal from "../components/SettingsModal";
 import { useAuth } from "../context/AuthContext";
@@ -85,6 +85,22 @@ export default function ProfileTab({ navigation }) {
             <Text style={[styles.username, { color: theme.text }]}>@{displayUser?.username || "username"}</Text>
             <Text style={[styles.bio, { color: theme.textSecondary }]}>{displayUser?.bio || "Music enthusiast."}</Text>
 
+            {/* Action Buttons */}
+            <View style={styles.actionButtonsRow}>
+                <TouchableOpacity
+                    style={[styles.actionButton, { backgroundColor: theme.surface }]}
+                    onPress={() => navigation.navigate("EditProfile")}
+                >
+                    <Text style={[styles.actionButtonText, { color: theme.text }]}>Edit Profile</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={[styles.actionButton, { backgroundColor: theme.surface }]}
+                    onPress={() => Share.share({ message: `Check out my music profile on Listify: @${displayUser.username}!` })}
+                >
+                    <Text style={[styles.actionButtonText, { color: theme.text }]}>Share Profile</Text>
+                </TouchableOpacity>
+            </View>
+
             {/* Reviews Section */}
             <View style={styles.sectionHeader}>
                 <Text style={[styles.sectionTitle, { color: theme.text }]}>My Reviews</Text>
@@ -142,8 +158,11 @@ const styles = StyleSheet.create({
     statItem: { alignItems: "center" },
     statNumber: { fontSize: 20, fontWeight: "bold" },
     statLabel: { fontSize: 12 },
-    username: { fontSize: 24, fontWeight: "bold", marginBottom: 5 },
-    bio: { fontSize: 16, marginBottom: 30 },
+    username: { fontSize: 18, fontWeight: "bold", marginBottom: 2 },
+    bio: { fontSize: 14, marginBottom: 20 },
+    actionButtonsRow: { flexDirection: 'row', gap: 10, marginBottom: 30 },
+    actionButton: { flex: 1, height: 35, borderRadius: 8, justifyContent: 'center', alignItems: 'center' },
+    actionButtonText: { fontSize: 14, fontWeight: '600' },
 
     // Reviews Section
     sectionHeader: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 10, marginBottom: 15 },
