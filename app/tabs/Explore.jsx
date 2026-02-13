@@ -7,7 +7,9 @@ import { useTheme } from "../context/ThemeContext";
 export default function ExploreTab({ navigation }) {
     const { theme } = useTheme();
     const [songs, setSongs] = useState([]);
+    const [searchQuery, setSearchQuery] = useState("");
     const [loading, setLoading] = useState(true);
+    const [isSearching, setIsSearching] = useState(false);
 
     useEffect(() => {
         const fetchSongs = async () => {
@@ -34,6 +36,34 @@ export default function ExploreTab({ navigation }) {
         };
         fetchSongs();
     }, []);
+
+    const handleSearch = async (query) => {
+        setSearchQuery(query);
+        if (query.trim().length === 0) {
+            setIsSearching(false);
+            setLoading(true);
+            try {
+                const res = await client.get("/songs");
+                setSongs(res.data || []);
+            } catch (e) {
+                console.log("Error resetting songs", e.message);
+            } finally {
+                setLoading(false);
+            }
+            return;
+        }
+
+        setIsSearching(true);
+        setLoading(true);
+        try {
+            const res = await client.get(`/songs?q=${encodeURIComponent(query)}`);
+            setSongs(res.data || []);
+        } catch (e) {
+            console.log("Search error", e.message);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const renderSong = ({ item }) => (
         <TouchableOpacity
@@ -71,10 +101,16 @@ export default function ExploreTab({ navigation }) {
                     placeholder="Artists, Songs, or Albums"
                     placeholderTextColor={theme.textSecondary}
                     style={[styles.searchInput, { color: theme.text }]}
+                    value={searchQuery}
+                    onChangeText={handleSearch}
+                    autoCapitalize="none"
+                    clearButtonMode="while-editing"
                 />
             </View>
 
-            <Text style={[styles.sectionTitle, { color: theme.text }]}>Trending Now</Text>
+            <Text style={[styles.sectionTitle, { color: theme.text }]}>
+                {isSearching ? `Results for "${searchQuery}"` : "Trending Now"}
+            </Text>
 
             {loading ? (
                 <ActivityIndicator color={theme.primary} />
