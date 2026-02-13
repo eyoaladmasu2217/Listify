@@ -1,4 +1,5 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
+import * as ImagePicker from 'expo-image-picker';
 import { useState } from "react";
 import { ActivityIndicator, Alert, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import client from "./api/client";
@@ -10,7 +11,21 @@ export default function EditProfileScreen({ navigation }) {
     const { user, setUser } = useAuth();
     const [username, setUsername] = useState(user?.username || "");
     const [bio, setBio] = useState(user?.bio || "");
+    const [image, setImage] = useState(null);
     const [loading, setLoading] = useState(false);
+
+    const pickImage = async () => {
+        let result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ['images'],
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 0.8,
+        });
+
+        if (!result.canceled) {
+            setImage(result.assets[0]);
+        }
+    };
 
     const handleSave = async () => {
         if (!username) {
@@ -20,11 +35,29 @@ export default function EditProfileScreen({ navigation }) {
 
         setLoading(true);
         try {
-            const response = await client.patch("/users/me", {
-                user: { username, bio }
+            const formData = new FormData();
+            formData.append("username", username);
+            formData.append("bio", bio);
+
+            if (image) {
+                const uriParts = image.uri.split('.');
+                const fileType = uriParts[uriParts.length - 1];
+
+                formData.append('profile_picture', {
+                    uri: image.uri,
+                    name: `photo.${fileType}`,
+                    type: `image/${fileType}`,
+                });
+            }
+
+            const response = await client.patch("/users/me", formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
             });
+
             // Update local user context if possible
-            if (setUser) setUser({ ...user, username, bio });
+            if (setUser) setUser(response.data.user);
             Alert.alert("Success", "Profile updated successfully!");
             navigation.goBack();
         } catch (error) {
@@ -56,10 +89,10 @@ export default function EditProfileScreen({ navigation }) {
                 {/* Avatar Change */}
                 <View style={styles.avatarSection}>
                     <Image
-                        source={{ uri: user?.profile_picture_url || "https://ui-avatars.com/api/?name=" + (user?.username || "User") }}
+                        source={{ uri: image ? image.uri : (user?.profile_picture_url || "https://ui-avatars.com/api/?name=" + (user?.username || "User")) }}
                         style={styles.avatar}
                     />
-                    <TouchableOpacity>
+                    <TouchableOpacity onPress={pickImage}>
                         <Text style={[styles.changePhotoText, { color: theme.primary }]}>Change profile photo</Text>
                     </TouchableOpacity>
                 </View>

@@ -10,6 +10,18 @@ module Api
       def me
         render json: { user: UserSerializer.render_as_hash(current_user, view: :simple) }, status: :ok
       end
+      
+      # PATCH /api/v1/users/me
+      def update
+        if current_user.update(user_params)
+          render json: { 
+            message: "Profile updated successfully", 
+            user: UserSerializer.render_as_hash(current_user, view: :simple) 
+          }, status: :ok
+        else
+          render json: { error: current_user.errors.full_messages.to_sentence }, status: :unprocessable_entity
+        end
+      end
 
       # GET /api/v1/users/:id/followers
       def followers
@@ -36,7 +48,7 @@ module Api
       end
 
       def user_params
-        params.permit(:username, :bio, :profile_picture_url, :theme, :notifications_enabled, :is_private)
+        params.permit(:username, :bio, :profile_picture_url, :theme, :notifications_enabled, :is_private, :profile_picture)
       end
     end
   end
