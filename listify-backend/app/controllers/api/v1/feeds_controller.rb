@@ -12,7 +12,7 @@ module Api
                              .page(params[:page])
                              .per(params[:per] || 20)
 
-        render json: ActivitySerializer.render(activities), status: :ok
+        render json: ActivitySerializer.render_as_json(activities), status: :ok
       end
 
       # GET /api/v1/feed/explore
@@ -23,7 +23,7 @@ module Api
                              .page(params[:page])
                              .per(params[:per] || 20)
 
-        render json: ActivitySerializer.render(activities), status: :ok
+        render json: ActivitySerializer.render_as_json(activities), status: :ok
       end
     end
   end

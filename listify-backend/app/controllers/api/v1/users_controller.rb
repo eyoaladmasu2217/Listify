@@ -13,12 +13,12 @@ module Api
 
       # GET /api/v1/users/:id/followers
       def followers
-        render json: UserSerializer.render(@user.followers, view: :simple), status: :ok
+        render json: UserSerializer.render_as_json(@user.followers, view: :simple), status: :ok
       end
 
       # GET /api/v1/users/:id/following
       def following
-        render json: UserSerializer.render(@user.following, view: :simple), status: :ok
+        render json: UserSerializer.render_as_json(@user.following, view: :simple), status: :ok
       end
 
       # DELETE /api/v1/users/:id
