@@ -2,7 +2,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { ActivityIndicator, View } from "react-native";
 import AppTabs from "./AppTabs";
 import CreateReview from "./CreateReview";
-import LoginScreen from "./login";
+import LoginScreen from "./Login";
 import RegisterScreen from "./Register";
 import ReviewDetail from "./ReviewDetail";
 import SongDetail from "./SongDetail";

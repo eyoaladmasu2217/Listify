@@ -12,8 +12,10 @@ module Api
           email = params.dig(:user, :email) || params[:email]
           password = params.dig(:user, :password) || params[:password]
           
-          Rails.logger.debug "Login attempt for email: #{email}"
-          
+          if email.blank? || password.blank?
+            return render json: { error: "Email and password are required" }, status: :bad_request
+          end
+
           user = User.find_by(email: email.downcase)
           
           if user&.valid_password?(password)

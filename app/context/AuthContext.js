@@ -28,7 +28,7 @@ try {
 // Force real API login for testing (set true to test with real backend)
 // Configure in app.json: { "extra": { "forceRealLogin": true } }
 const FORCE_REAL_LOGIN = expoConfig?.extra?.forceRealLogin === true ||
-                          expoConfig?.extra?.EXPO_FORCE_REAL_LOGIN === 'true';
+  expoConfig?.extra?.EXPO_FORCE_REAL_LOGIN === 'true';
 
 const AuthContext = createContext();
 
@@ -57,7 +57,7 @@ export const AuthProvider = ({ children }) => {
         // Mobile / Expo OR forced real login
         const storedToken = await SecureStore.getItemAsync("auth_token");
         console.log("Mobile mode - restoring session, found token:", storedToken ? "yes" : "no");
-        
+
         if (storedToken) {
           // Check if token is a mock/invalid token and clear it
           if (storedToken === 'mock.jwt.token' || !storedToken.includes('.')) {
@@ -66,7 +66,7 @@ export const AuthProvider = ({ children }) => {
             setIsLoading(false);
             return;
           }
-          
+
           setToken(storedToken);
           try {
             const res = await client.get("/users/me");
@@ -117,15 +117,15 @@ export const AuthProvider = ({ children }) => {
     // Mobile / Expo login OR forced real login - use real API
     try {
       console.log("Attempting mobile login for:", email);
-      const response = await client.post("/auth/login", { 
-        user: { email, password } 
+      const response = await client.post("/auth/login", {
+        user: { email, password }
       });
-      
+
       console.log("Login response status:", response.status);
       console.log("Login response data:", response.data);
-      
+
       const { access_token, user: userData } = response.data;
-      
+
       if (access_token) {
         console.log("Login successful, token received:", access_token.slice(0, 50) + "...");
         await SecureStore.setItemAsync("auth_token", access_token);
@@ -133,14 +133,17 @@ export const AuthProvider = ({ children }) => {
         setUser(userData);
         return { success: true };
       }
-      
+
       console.log("Login response missing access_token:", response.data);
       return { success: false, error: "Token missing in response" };
     } catch (error) {
       console.log("Login Error:", error.response?.status, error.response?.data || error.message);
-      return { 
-        success: false, 
-        error: error.response?.data?.error || "Login failed - check your credentials" 
+      const errorMessage = error.response?.data?.error ||
+        error.response?.data?.message ||
+        "Login failed - check your credentials";
+      return {
+        success: false,
+        error: errorMessage
       };
     }
   };
@@ -150,12 +153,12 @@ export const AuthProvider = ({ children }) => {
     await SecureStore.deleteItemAsync("auth_token");
     setToken(null);
     setUser(null);
-    
+
     if (!isWeb || FORCE_REAL_LOGIN) {
-      try { 
+      try {
         // Logout endpoint - clear token first so no auth header is sent
         // Since we're not using warden-jwt_auth token storage, just return success
-        await client.delete("/auth/logout"); 
+        await client.delete("/auth/logout");
       } catch (e) {
         // Ignore errors - logout is successful when token is cleared
         console.log("Logout API call result:", e.response?.status || e.message);
@@ -185,16 +188,16 @@ export const AuthProvider = ({ children }) => {
     try {
       console.log("Attempting registration for:", email);
       // Devise registration endpoint is /auth (not /auth/register)
-      const response = await client.post("/auth", { 
-        user: { username, email, password } 
+      const response = await client.post("/auth", {
+        user: { username, email, password }
       });
-      
+
       console.log("Registration response status:", response.status);
       console.log("Registration response data:", response.data);
-      
+
       // After registration, auto-login
       const { access_token, user: userData } = response.data;
-      
+
       if (access_token) {
         console.log("Registration successful, auto-login");
         await SecureStore.setItemAsync("auth_token", access_token);
@@ -202,13 +205,17 @@ export const AuthProvider = ({ children }) => {
         setUser(userData);
         return { success: true };
       }
-      
+
       return { success: false, error: "Registration succeeded but no token received" };
     } catch (error) {
       console.log("Registration Error:", error.response?.status, error.response?.data || error.message);
-      return { 
-        success: false, 
-        error: error.response?.data?.error || error.response?.data?.full_errors?.[0] || "Registration failed" 
+      const errorMessage = error.response?.data?.status?.message ||
+        error.response?.data?.error ||
+        error.response?.data?.full_errors?.[0] ||
+        "Registration failed";
+      return {
+        success: false,
+        error: errorMessage
       };
     }
   };

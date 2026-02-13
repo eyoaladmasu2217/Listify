@@ -8,8 +8,9 @@ default: &default
   pool: 5
 
 development:
-  <<: *default
-  database: listify_dev
+  adapter: sqlite3
+  database: db/listify_development.sqlite3
+  pool: 5
 
 test:
   adapter: sqlite3
