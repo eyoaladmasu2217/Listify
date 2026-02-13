@@ -1,6 +1,7 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { ActivityIndicator, View } from "react-native";
 import AppTabs from "./AppTabs";
+import CollectionDetail from "./CollectionDetail";
 import CreateReview from "./CreateReview";
 import EditProfileScreen from "./EditProfile";
 import ForgotPasswordScreen from "./ForgotPassword";
@@ -30,6 +31,7 @@ function RootNavigator() {
         <>
           <Stack.Screen name="AppTabs" component={AppTabs} />
           <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+          <Stack.Screen name="CollectionDetail" component={CollectionDetail} />
           <Stack.Screen name="SongDetail" component={SongDetail} options={{ presentation: 'modal' }} />
           <Stack.Screen name="ReviewDetail" component={ReviewDetail} options={{ presentation: 'modal' }} />
           <Stack.Screen name="CreateReview" component={CreateReview} options={{ presentation: 'modal' }} />

@@ -2,7 +2,18 @@ module Api
   module V1
     class CollectionsController < ApplicationController
       # Authentication is handled by ApplicationController's authenticate_request!
-      before_action :set_collection, only: [ :add_item, :remove_item, :update, :destroy ]
+      before_action :set_collection, only: [ :show, :add_item, :remove_item, :update, :destroy ]
+
+      # GET /api/v1/collections
+      def index
+        collections = current_user.collections.order(created_at: :desc)
+        render json: CollectionSerializer.render_as_json(collections), status: :ok
+      end
+
+      # GET /api/v1/collections/:id
+      def show
+        render json: CollectionSerializer.render_as_json(@collection), status: :ok
+      end
 
       # POST /api/v1/collections
       def create
@@ -30,33 +41,51 @@ module Api
       end
 
       # POST /api/v1/collections/:id/items
-      # Body: { song_id: 123 }
+      # Body: { song_id: 123 } OR { album_id: 456 }
       def add_item
-        song = Song.find_by(id: params[:song_id])
-        unless song
+        if params[:song_id].present?
+          song = Song.find_by(id: params[:song_id])
+          unless song
             render json: { error: "Song not found" }, status: :not_found
             return
+          end
+          item = @collection.collection_items.build(song: song)
+        elsif params[:album_id].present?
+          album = Album.find_by(id: params[:album_id])
+          unless album
+            render json: { error: "Album not found" }, status: :not_found
+            return
+          end
+          item = @collection.collection_items.build(album: album)
+        else
+          render json: { error: "Must provide song_id or album_id" }, status: :unauthorized
+          return
         end
 
-        item = @collection.collection_items.build(song: song)
         if item.save
-          render json: { collection_id: item.collection_id, song_id: item.song_id, position: item.position }, status: :created
+          render json: { collection_id: item.collection_id, song_id: item.song_id, album_id: item.album_id, position: item.position }, status: :created
         else
-          # Handle duplicate error gracefully
           render json: { error: item.errors.full_messages.to_sentence }, status: :unprocessable_entity
         end
       end
 
-      # DELETE /api/v1/collections/:id/items/:song_id
+      # DELETE /api/v1/collections/:id/items
+      # Body: { song_id: 123 } OR { album_id: 456 }
       def remove_item
-        # Find item by song_id within this collection
-        item = @collection.collection_items.find_by(song_id: params[:song_id])
+        if params[:song_id].present?
+          item = @collection.collection_items.find_by(song_id: params[:song_id])
+        elsif params[:album_id].present?
+          item = @collection.collection_items.find_by(album_id: params[:album_id])
+        else
+          render json: { error: "Must provide song_id or album_id" }, status: :unprocessable_entity
+          return
+        end
 
         if item
           item.destroy
-          render json: { message: "Song removed from collection" }, status: :ok
+          render json: { message: "Item removed from collection" }, status: :ok
         else
-          render json: { error: "Song not found in this collection" }, status: :not_found
+          render json: { error: "Item not found in this collection" }, status: :not_found
         end
       end
 

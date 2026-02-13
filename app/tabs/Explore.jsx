@@ -1,6 +1,7 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { useEffect, useState } from "react";
-import { ActivityIndicator, FlatList, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback, useEffect, useState } from "react";
+import { ActivityIndicator, Alert, FlatList, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import client from "../api/client";
 import { useTheme } from "../context/ThemeContext";
 
@@ -10,6 +11,46 @@ export default function ExploreTab({ navigation }) {
     const [searchQuery, setSearchQuery] = useState("");
     const [loading, setLoading] = useState(true);
     const [isSearching, setIsSearching] = useState(false);
+    const [collections, setCollections] = useState([]);
+    const [showListModal, setShowListModal] = useState(false);
+    const [selectedSong, setSelectedSong] = useState(null);
+    const [addingToList, setAddingToList] = useState(false);
+
+    const fetchCollections = async () => {
+        try {
+            const response = await client.get("/collections");
+            setCollections(response.data);
+        } catch (error) {
+            console.log("Fetch collections error:", error.message);
+        }
+    };
+
+    useFocusEffect(
+        useCallback(() => {
+            fetchCollections();
+        }, [])
+    );
+
+    const openListModal = (song) => {
+        setSelectedSong(song);
+        setShowListModal(true);
+    };
+
+    const handleAddToList = async (collectionId) => {
+        setAddingToList(true);
+        try {
+            await client.post(`/collections/${collectionId}/items`, {
+                song_id: selectedSong.id
+            });
+            Alert.alert("Success", "Added to list!");
+            setShowListModal(false);
+        } catch (error) {
+            console.log("Add to list error:", error.message);
+            Alert.alert("Error", error.response?.data?.error || "Could not add to list.");
+        } finally {
+            setAddingToList(false);
+        }
+    };
 
     useEffect(() => {
         const fetchSongs = async () => {
@@ -85,7 +126,9 @@ export default function ExploreTab({ navigation }) {
                 <Text style={[styles.songTitle, { color: theme.text }]}>{item.title}</Text>
                 <Text style={[styles.songArtist, { color: theme.textSecondary }]}>{item.artist_name || "Unknown Artist"}</Text>
             </View>
-            <Ionicons name="ellipsis-horizontal" size={20} color={theme.textSecondary} />
+            <TouchableOpacity onPress={() => openListModal(item)}>
+                <Ionicons name="add-circle-outline" size={24} color={theme.primary} />
+            </TouchableOpacity>
         </TouchableOpacity>
     );
 
@@ -127,6 +170,46 @@ export default function ExploreTab({ navigation }) {
                     }
                 />
             )}
+
+            {/* List Selection Modal */}
+            <Modal
+                visible={showListModal}
+                animationType="slide"
+                transparent={true}
+                onRequestClose={() => setShowListModal(false)}
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={[styles.modalContent, { backgroundColor: theme.background }]}>
+                        <View style={styles.modalHeader}>
+                            <Text style={[styles.modalTitle, { color: theme.text }]}>Add to List</Text>
+                            <TouchableOpacity onPress={() => setShowListModal(false)}>
+                                <Ionicons name="close" size={24} color={theme.text} />
+                            </TouchableOpacity>
+                        </View>
+
+                        {collections.length === 0 ? (
+                            <View style={styles.emptyCollections}>
+                                <Text style={{ color: theme.textSecondary }}>No lists found. Create one in the Library tab!</Text>
+                            </View>
+                        ) : (
+                            <FlatList
+                                data={collections}
+                                keyExtractor={(item) => item.id.toString()}
+                                renderItem={({ item }) => (
+                                    <TouchableOpacity
+                                        style={[styles.collectionItem, { backgroundColor: theme.surface }]}
+                                        onPress={() => handleAddToList(item.id)}
+                                        disabled={addingToList}
+                                    >
+                                        <Text style={[styles.collectionTitle, { color: theme.text }]}>{item.title}</Text>
+                                        {addingToList ? <ActivityIndicator size="small" color={theme.primary} /> : <Ionicons name="add" size={20} color={theme.textSecondary} />}
+                                    </TouchableOpacity>
+                                )}
+                            />
+                        )}
+                    </View>
+                </View>
+            </Modal>
         </View>
     );
 }
@@ -143,4 +226,11 @@ const styles = StyleSheet.create({
     songInfo: { flex: 1 },
     songTitle: { fontSize: 16, fontWeight: "600" },
     songArtist: { fontSize: 14 },
+    modalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "flex-end" },
+    modalContent: { borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, paddingBottom: 40, maxHeight: '80%' },
+    modalHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 20 },
+    modalTitle: { fontSize: 20, fontWeight: "bold" },
+    collectionItem: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 16, borderRadius: 12, marginBottom: 10 },
+    collectionTitle: { fontSize: 16, fontWeight: '600' },
+    emptyCollections: { padding: 20, alignItems: 'center' },
 });

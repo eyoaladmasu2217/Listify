@@ -49,7 +49,7 @@ Rails.application.routes.draw do
       resources :collections, only: [:create, :show, :index, :update, :destroy] do
         member do
           post "items", to: "collections#add_item"
-          delete "items/:song_id", to: "collections#remove_item"
+          delete "items", to: "collections#remove_item"
         end
       end
 

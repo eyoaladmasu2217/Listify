@@ -1,10 +1,11 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { useState } from "react";
-import { Alert, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View, ActivityIndicator, Pressable } from "react-native";
-import { useTheme } from "../context/ThemeContext";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { useCallback, useState } from "react";
+import { ActivityIndicator, Alert, Modal, Pressable, Text, TextInput, TouchableOpacity, View } from "react-native";
 import client from "../api/client";
-
+import { useTheme } from "../context/ThemeContext";
 export default function CollectionsTab() {
+    const navigation = useNavigation();
     const { theme } = useTheme();
     const [createModalVisible, setCreateModalVisible] = useState(false);
     const [editModalVisible, setEditModalVisible] = useState(false);
@@ -13,10 +14,22 @@ export default function CollectionsTab() {
     const [description, setDescription] = useState("");
     const [isPublic, setIsPublic] = useState(true);
     const [loading, setLoading] = useState(false);
-    const [collections, setCollections] = useState([
-        { id: 1, title: "My Favorites", description: "Best songs ever", public: true },
-        { id: 2, title: "Workout Mix", description: "High energy tracks", public: false },
-    ]);
+    const [collections, setCollections] = useState([]);
+
+    const fetchCollections = async () => {
+        try {
+            const response = await client.get("/collections");
+            setCollections(response.data);
+        } catch (error) {
+            console.log("Fetch collections error:", error.message);
+        }
+    };
+
+    useFocusEffect(
+        useCallback(() => {
+            fetchCollections();
+        }, [])
+    );
 
     const resetCreateForm = () => {
         setTitle("");
@@ -89,8 +102,8 @@ export default function CollectionsTab() {
             });
 
             if (response.status === 200) {
-                const updatedCollections = collections.map(c => 
-                    c.id === editingCollection.id 
+                const updatedCollections = collections.map(c =>
+                    c.id === editingCollection.id
                         ? { ...c, title: title.trim(), description: description.trim(), public: isPublic }
                         : c
                 );
@@ -101,8 +114,8 @@ export default function CollectionsTab() {
         } catch (error) {
             console.log("Update collection error:", error.response?.data || error.message);
             // Use mock data for demo
-            const updatedCollections = collections.map(c => 
-                c.id === editingCollection.id 
+            const updatedCollections = collections.map(c =>
+                c.id === editingCollection.id
                     ? { ...c, title: title.trim(), description: description.trim(), public: isPublic }
                     : c
             );
@@ -120,8 +133,8 @@ export default function CollectionsTab() {
             `Are you sure you want to delete "${collection.title}"?`,
             [
                 { text: "Cancel", style: "cancel" },
-                { 
-                    text: "Delete", 
+                {
+                    text: "Delete",
                     style: "destructive",
                     onPress: async () => {
                         try {
@@ -167,7 +180,7 @@ export default function CollectionsTab() {
                     <Text style={[styles.emptyText, { color: theme.textSecondary }]}>
                         You haven't created any lists yet.
                     </Text>
-                    <TouchableOpacity 
+                    <TouchableOpacity
                         style={[styles.createButton, { backgroundColor: theme.surface }]}
                         onPress={() => { resetCreateForm(); setCreateModalVisible(true); }}
                     >
@@ -177,13 +190,13 @@ export default function CollectionsTab() {
             ) : (
                 <View style={styles.listContainer}>
                     {collections.map((collection) => (
-                        <Pressable 
-                            key={collection.id} 
+                        <Pressable
+                            key={collection.id}
                             style={({ pressed }) => [
-                                styles.listItem, 
+                                styles.listItem,
                                 { backgroundColor: theme.surface, opacity: pressed ? 0.9 : 1 }
                             ]}
-                            onPress={() => openMenu(collection)}
+                            onPress={() => navigation.navigate("CollectionDetail", { collection })}
                             onLongPress={() => openMenu(collection)}
                         >
                             <View style={styles.listInfo}>
@@ -240,14 +253,14 @@ export default function CollectionsTab() {
                             multiline
                         />
 
-                        <TouchableOpacity 
+                        <TouchableOpacity
                             style={[styles.publicToggle, { backgroundColor: theme.surface }]}
                             onPress={() => setIsPublic(!isPublic)}
                         >
-                            <Ionicons 
-                                name={isPublic ? "checkbox" : "square-outline"} 
-                                size={24} 
-                                color={theme.primary} 
+                            <Ionicons
+                                name={isPublic ? "checkbox" : "square-outline"}
+                                size={24}
+                                color={theme.primary}
                             />
                             <Text style={[styles.publicText, { color: theme.text }]}>Public list</Text>
                         </TouchableOpacity>
@@ -302,14 +315,14 @@ export default function CollectionsTab() {
                             multiline
                         />
 
-                        <TouchableOpacity 
+                        <TouchableOpacity
                             style={[styles.publicToggle, { backgroundColor: theme.surface }]}
                             onPress={() => setIsPublic(!isPublic)}
                         >
-                            <Ionicons 
-                                name={isPublic ? "checkbox" : "square-outline"} 
-                                size={24} 
-                                color={theme.primary} 
+                            <Ionicons
+                                name={isPublic ? "checkbox" : "square-outline"}
+                                size={24}
+                                color={theme.primary}
                             />
                             <Text style={[styles.publicText, { color: theme.text }]}>Public list</Text>
                         </TouchableOpacity>
@@ -330,9 +343,7 @@ export default function CollectionsTab() {
             </Modal>
         </View>
     );
-}
-
-const styles = StyleSheet.create({
+} const styles = StyleSheet.create({
     container: { flex: 1, padding: 20, paddingTop: 60 },
     header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 30 },
     title: { fontSize: 32, fontWeight: "bold" },

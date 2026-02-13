@@ -1,6 +1,6 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useEffect, useState } from "react";
-import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Alert, FlatList, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import client from "./api/client";
 import { useTheme } from "./context/ThemeContext";
 
@@ -9,6 +9,9 @@ export default function SongDetail({ route, navigation }) {
     const { song } = route.params || {};
     const [reviews, setReviews] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [collections, setCollections] = useState([]);
+    const [showListModal, setShowListModal] = useState(false);
+    const [addingToList, setAddingToList] = useState(false);
 
     useEffect(() => {
         const fetchReviews = async () => {
@@ -35,6 +38,36 @@ export default function SongDetail({ route, navigation }) {
         fetchReviews();
     }, [song?.id]);
 
+    const fetchCollections = async () => {
+        try {
+            const response = await client.get("/collections");
+            setCollections(response.data);
+        } catch (error) {
+            console.log("Fetch collections error:", error.message);
+        }
+    };
+
+    const handleAddToList = async (collectionId) => {
+        setAddingToList(true);
+        try {
+            await client.post(`/collections/${collectionId}/items`, {
+                song_id: song.id
+            });
+            Alert.alert("Success", "Added to list!");
+            setShowListModal(false);
+        } catch (error) {
+            console.log("Add to list error:", error.message);
+            Alert.alert("Error", error.response?.data?.error || "Could not add to list.");
+        } finally {
+            setAddingToList(false);
+        }
+    };
+
+    const openListModal = () => {
+        fetchCollections();
+        setShowListModal(true);
+    };
+
     return (
         <View style={[styles.container, { backgroundColor: theme.background }]}>
             {/* Modal Handle */}
@@ -56,12 +89,22 @@ export default function SongDetail({ route, navigation }) {
                 <Text style={[styles.title, { color: theme.text }]}>{song?.title || "Unknown Song"}</Text>
                 <Text style={[styles.artist, { color: theme.textSecondary }]}>{song?.artist || "Unknown Artist"}</Text>
 
-                <TouchableOpacity
-                    style={[styles.rateButton, { backgroundColor: theme.primary }]}
-                    onPress={() => navigation.navigate("CreateReview", { song })}
-                >
-                    <Text style={styles.rateButtonText}>Log / Review</Text>
-                </TouchableOpacity>
+                <View style={styles.actionRow}>
+                    <TouchableOpacity
+                        style={[styles.rateButton, { backgroundColor: theme.primary }]}
+                        onPress={() => navigation.navigate("CreateReview", { song })}
+                    >
+                        <Text style={styles.rateButtonText}>Log / Review</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={[styles.addToListButton, { backgroundColor: theme.surface }]}
+                        onPress={openListModal}
+                    >
+                        <Ionicons name="list-outline" size={20} color={theme.text} />
+                        <Text style={[styles.addToListText, { color: theme.text }]}>Add to List</Text>
+                    </TouchableOpacity>
+                </View>
 
                 <View style={[styles.statsRow, { borderColor: theme.surface }]}>
                     <View style={styles.stat}>
@@ -108,6 +151,46 @@ export default function SongDetail({ route, navigation }) {
                     ))
                 )}
             </ScrollView>
+
+            {/* List Selection Modal */}
+            <Modal
+                visible={showListModal}
+                animationType="slide"
+                transparent={true}
+                onRequestClose={() => setShowListModal(false)}
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={[styles.modalContent, { backgroundColor: theme.background }]}>
+                        <View style={styles.modalHeader}>
+                            <Text style={[styles.modalTitle, { color: theme.text }]}>Add to List</Text>
+                            <TouchableOpacity onPress={() => setShowListModal(false)}>
+                                <Ionicons name="close" size={24} color={theme.text} />
+                            </TouchableOpacity>
+                        </View>
+
+                        {collections.length === 0 ? (
+                            <View style={styles.emptyCollections}>
+                                <Text style={{ color: theme.textSecondary }}>No lists found. Create one in the Library tab!</Text>
+                            </View>
+                        ) : (
+                            <FlatList
+                                data={collections}
+                                keyExtractor={(item) => item.id.toString()}
+                                renderItem={({ item }) => (
+                                    <TouchableOpacity
+                                        style={[styles.collectionItem, { backgroundColor: theme.surface }]}
+                                        onPress={() => handleAddToList(item.id)}
+                                        disabled={addingToList}
+                                    >
+                                        <Text style={[styles.collectionTitle, { color: theme.text }]}>{item.title}</Text>
+                                        {addingToList ? <ActivityIndicator size="small" color={theme.primary} /> : <Ionicons name="add" size={20} color={theme.textSecondary} />}
+                                    </TouchableOpacity>
+                                )}
+                            />
+                        )}
+                    </View>
+                </View>
+            </Modal>
         </View>
     );
 }
@@ -118,8 +201,11 @@ const styles = StyleSheet.create({
     cover: { width: 200, height: 200, borderRadius: 10, marginBottom: 20, marginTop: 20 },
     title: { fontSize: 28, fontWeight: "bold", textAlign: "center" },
     artist: { fontSize: 18, marginBottom: 30, textAlign: "center" },
-    rateButton: { paddingVertical: 12, paddingHorizontal: 40, borderRadius: 30, marginBottom: 30 },
+    actionRow: { flexDirection: 'row', gap: 10, width: '100%', paddingHorizontal: 20, marginBottom: 30 },
+    rateButton: { flex: 2, paddingVertical: 12, borderRadius: 30, alignItems: 'center', justifyContent: 'center' },
     rateButtonText: { color: "white", fontSize: 16, fontWeight: "bold" },
+    addToListButton: { flex: 1, flexDirection: 'row', gap: 8, paddingVertical: 12, borderRadius: 30, alignItems: 'center', justifyContent: 'center' },
+    addToListText: { fontSize: 14, fontWeight: "600" },
     statsRow: { flexDirection: "row", width: "100%", justifyContent: "space-around", borderTopWidth: 1, borderBottomWidth: 1, paddingVertical: 15, marginBottom: 30 },
     stat: { alignItems: "center" },
     statValue: { fontSize: 20, fontWeight: "bold" },
@@ -133,4 +219,11 @@ const styles = StyleSheet.create({
     modalHandleContainer: { height: 20, justifyContent: 'center', alignItems: 'center', marginTop: 10 },
     modalHandle: { width: 40, height: 4, borderRadius: 2 },
     closeButton: { position: 'absolute', top: 15, right: 15, zIndex: 10 },
+    modalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "flex-end" },
+    modalContent: { borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, paddingBottom: 40, maxHeight: '80%' },
+    modalHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 20 },
+    modalTitle: { fontSize: 20, fontWeight: "bold" },
+    collectionItem: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 16, borderRadius: 12, marginBottom: 10 },
+    collectionTitle: { fontSize: 16, fontWeight: '600' },
+    emptyCollections: { padding: 20, alignItems: 'center' },
 });

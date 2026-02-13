@@ -1,0 +1,56 @@
+﻿Starting project at C:\Users\ASUS-ROG\OneDrive\Documents\Listify
+React Compiler enabled
+Starting Metro Bundler
+warning: Bundler cache is empty, rebuilding (this may take a minute)
+node.exe : Failed to resolve 
+the Android SDK path. Default 
+install location not found: C:
+\Users\ASUS-ROG\AppData\Local\
+Android\Sdk. Use ANDROID_HOME 
+to set the Android SDK 
+location.
+At C:\nvm4w\nodejs\npx.ps1:29 
+char:3
++   & $NODE_EXE $NPX_CLI_JS 
+$args
++   
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : 
+    NotSpecified: (Failed to  
+   resol...d SDK location.:   
+ String) [], RemoteExcepti    
+on
+    + FullyQualifiedErrorId : 
+    NativeCommandError
+ 
+Failed to resolve the Android 
+SDK path. Default install 
+location not found: C:\Users\A
+SUS-ROG\AppData\Local\Android\
+Sdk. Use ANDROID_HOME to set 
+the Android SDK location.
+Error: 'adb' is not 
+recognized as an internal or 
+external command,
+operable program or batch 
+file.
+Error: 'adb' is not 
+recognized as an internal or 
+external command,
+operable program or batch 
+file.
+    at notFoundError (C:\Users
+\ASUS-ROG\OneDrive\Documents\L
+istify\node_modules\cross-spaw
+n\lib\enoent.js:6:26)
+    at verifyENOENT (C:\Users\
+ASUS-ROG\OneDrive\Documents\Li
+stify\node_modules\cross-spawn
+\lib\enoent.js:40:16)
+    at ChildProcess.cp.emit (C
+:\Users\ASUS-ROG\OneDrive\Docu
+ments\Listify\node_modules\cro
+ss-spawn\lib\enoent.js:27:25)
+    at Process.ChildProcess._h
+andle.onexit (node:internal/ch
+ild_process:294:12)
