@@ -110,8 +110,10 @@ export default function CreateReview({ route, navigation }) {
                         onChangeText={setText}
                     />
                 </View>
+            </ScrollView>
 
-                {/* Save Button */}
+            {/* Save Button Container */}
+            <View style={[styles.footer, { backgroundColor: theme.background }]}>
                 <TouchableOpacity
                     style={[styles.saveButton, { backgroundColor: "#58bc6b" }]} // Figma primary green
                     onPress={handlePublish}
@@ -123,7 +125,7 @@ export default function CreateReview({ route, navigation }) {
                         <Text style={styles.saveButtonText}>Save Rating</Text>
                     )}
                 </TouchableOpacity>
-            </ScrollView>
+            </View>
         </View>
     );
 }
@@ -140,7 +142,7 @@ const styles = StyleSheet.create({
     },
     backButton: { width: 40 },
     headerTitle: { fontSize: 18, fontWeight: "700" },
-    scrollContent: { alignItems: "center", paddingHorizontal: 25, paddingBottom: 40 },
+    scrollContent: { alignItems: "center", paddingHorizontal: 25, paddingBottom: 20 },
     largeCoverContainer: {
         shadowColor: "#000",
         shadowOffset: { width: 0, height: 10 },
@@ -172,8 +174,14 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderRadius: 12,
         padding: 15,
-        marginBottom: 40,
+        marginBottom: 20,
         backgroundColor: "#161616" // Dark surface
+    },
+    footer: {
+        width: "100%",
+        paddingHorizontal: 25,
+        paddingBottom: 40,
+        paddingTop: 10,
     },
     input: {
         flex: 1,
