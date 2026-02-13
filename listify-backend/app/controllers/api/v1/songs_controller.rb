@@ -4,9 +4,21 @@ module Api
       before_action :authenticate_user!
 
       def index
-        songs = Song.includes(:artist, :album)
-                    .page(params[:page])
-                    .per(params[:per] || 20)
+        if params[:q].present?
+          result = Music::DeezerSyncService.call(params[:q], limit: 20)
+          if result.success?
+            songs = result.data
+          else
+            # Fallback to local search if Deezer fails
+            songs = Song.where("title LIKE ?", "%#{params[:q]}%")
+                        .includes(:artist, :album)
+          end
+        else
+          songs = Song.includes(:artist, :album)
+                      .page(params[:page])
+                      .per(params[:per] || 20)
+        end
+        
         render json: SongSerializer.render(songs), status: :ok
       end
 
