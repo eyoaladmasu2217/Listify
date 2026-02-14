@@ -1,13 +1,14 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback, useEffect, useState } from "react";
-import { ActivityIndicator, Alert, FlatList, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Alert, FlatList, Image, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import client from "../api/client";
 import { useTheme } from "../context/ThemeContext";
 
 export default function ExploreTab({ navigation }) {
     const { theme } = useTheme();
     const [songs, setSongs] = useState([]);
+    const [trendingAlbums, setTrendingAlbums] = useState([]);
     const [searchQuery, setSearchQuery] = useState("");
     const [loading, setLoading] = useState(true);
     const [isSearching, setIsSearching] = useState(false);
@@ -53,7 +54,7 @@ export default function ExploreTab({ navigation }) {
     };
 
     useEffect(() => {
-        const fetchSongs = async () => {
+        const fetchInitialData = async () => {
             const mockSongs = [
                 { id: 1, title: "Billie Jean", artist_name: "Michael Jackson", cover_url: "https://upload.wikimedia.org/wikipedia/en/5/55/Michael_Jackson_-_Thriller.png" },
                 { id: 2, title: "Come Together", artist_name: "The Beatles", cover_url: "https://upload.wikimedia.org/wikipedia/en/4/42/Beatles_-_Abbey_Road.jpg" },
@@ -62,20 +63,22 @@ export default function ExploreTab({ navigation }) {
             ];
 
             try {
-                const res = await client.get("/songs");
-                if (res.data && res.data.length > 0) {
-                    setSongs(res.data);
-                } else {
-                    setSongs(mockSongs);
-                }
+                // Fetch trending songs and trending albums in parallel
+                const [songsRes, albumsRes] = await Promise.all([
+                    client.get("/songs/trending"),
+                    client.get("/albums/trending")
+                ]);
+
+                setSongs(songsRes.data.length > 0 ? songsRes.data : mockSongs);
+                setTrendingAlbums(albumsRes.data);
             } catch (e) {
-                console.log("Error fetching songs, using mock", e.message);
+                console.log("Error fetching initial data", e.message);
                 setSongs(mockSongs);
             } finally {
                 setLoading(false);
             }
         };
-        fetchSongs();
+        fetchInitialData();
     }, []);
 
     const handleSearch = async (query) => {
@@ -113,7 +116,7 @@ export default function ExploreTab({ navigation }) {
                 song: {
                     id: item.id,
                     title: item.title,
-                    artist: item.artist_name || "Unknown Artist",
+                    artist: item.artist_name || item.artist?.name || "Unknown Artist",
                     cover: item.cover_url || "https://upload.wikimedia.org/wikipedia/en/4/42/Beatles_-_Abbey_Road.jpg"
                 }
             })}
@@ -123,12 +126,30 @@ export default function ExploreTab({ navigation }) {
                 style={styles.songCover}
             />
             <View style={styles.songInfo}>
-                <Text style={[styles.songTitle, { color: theme.text }]}>{item.title}</Text>
-                <Text style={[styles.songArtist, { color: theme.textSecondary }]}>{item.artist_name || "Unknown Artist"}</Text>
+                <Text style={[styles.songTitle, { color: theme.text }]} numberOfLines={1}>{item.title}</Text>
+                <Text style={[styles.songArtist, { color: theme.textSecondary }]} numberOfLines={1}>{item.artist_name || item.artist?.name || "Unknown Artist"}</Text>
             </View>
             <TouchableOpacity onPress={() => openListModal(item)}>
                 <Ionicons name="add-circle-outline" size={24} color={theme.primary} />
             </TouchableOpacity>
+        </TouchableOpacity>
+    );
+
+    const renderAlbum = ({ item }) => (
+        <TouchableOpacity
+            style={styles.albumItem}
+            onPress={() => {
+                // If we had an AlbumDetail, we would navigate there.
+                // For now, let's just show a message or do nothing.
+                Alert.alert("Album", item.title);
+            }}
+        >
+            <Image
+                source={{ uri: item.cover_url || "https://via.placeholder.com/150" }}
+                style={styles.albumCover}
+            />
+            <Text style={[styles.albumTitle, { color: theme.text }]} numberOfLines={1}>{item.title}</Text>
+            <Text style={[styles.albumArtist, { color: theme.textSecondary }]} numberOfLines={1}>{item.artist_name || item.artist?.name}</Text>
         </TouchableOpacity>
     );
 
@@ -151,21 +172,43 @@ export default function ExploreTab({ navigation }) {
                 />
             </View>
 
-            <Text style={[styles.sectionTitle, { color: theme.text }]}>
-                {isSearching ? `Results for "${searchQuery}"` : "Trending Now"}
-            </Text>
-
             {loading ? (
-                <ActivityIndicator color={theme.primary} />
+                <ActivityIndicator color={theme.primary} style={{ marginTop: 20 }} />
             ) : (
                 <FlatList
                     data={songs}
                     renderItem={renderSong}
                     keyExtractor={(item) => item.id.toString()}
                     showsVerticalScrollIndicator={false}
+                    ListHeaderComponent={
+                        <>
+                            {!isSearching && trendingAlbums.length > 0 && (
+                                <View style={styles.trendingAlbumsContainer}>
+                                    <Text style={[styles.sectionTitle, { color: theme.text }]}>Trending Albums</Text>
+                                    <FlatList
+                                        data={trendingAlbums}
+                                        renderItem={renderAlbum}
+                                        keyExtractor={(item) => item.id.toString()}
+                                        horizontal
+                                        showsHorizontalScrollIndicator={false}
+                                        contentContainerStyle={{ paddingBottom: 20 }}
+                                    />
+                                    <Text style={[styles.sectionTitle, { color: theme.text, marginTop: 10 }]}>Trending Songs</Text>
+                                </View>
+                            )}
+                            {isSearching && (
+                                <Text style={[styles.sectionTitle, { color: theme.text }]}>
+                                    Results for "{searchQuery}"
+                                </Text>
+                            )}
+                            {!isSearching && trendingAlbums.length === 0 && (
+                                <Text style={[styles.sectionTitle, { color: theme.text }]}>Trending Now</Text>
+                            )}
+                        </>
+                    }
                     ListEmptyComponent={
                         <Text style={{ color: theme.textSecondary, textAlign: "center", marginTop: 20 }}>
-                            No songs found.
+                            No results found.
                         </Text>
                     }
                 />
@@ -226,6 +269,13 @@ const styles = StyleSheet.create({
     songInfo: { flex: 1 },
     songTitle: { fontSize: 16, fontWeight: "600" },
     songArtist: { fontSize: 14 },
+    // Album styles
+    trendingAlbumsContainer: { marginBottom: 10 },
+    albumItem: { width: 140, marginRight: 15 },
+    albumCover: { width: 140, height: 140, borderRadius: 12, marginBottom: 8 },
+    albumTitle: { fontSize: 14, fontWeight: "bold" },
+    albumArtist: { fontSize: 12, opacity: 0.7 },
+
     modalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "flex-end" },
     modalContent: { borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, paddingBottom: 40, maxHeight: '80%' },
     modalHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 20 },
