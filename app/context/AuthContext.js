@@ -137,10 +137,19 @@ export const AuthProvider = ({ children }) => {
       console.log("Login response missing access_token:", response.data);
       return { success: false, error: "Token missing in response" };
     } catch (error) {
-      console.log("Login Error:", error.response?.status, error.response?.data || error.message);
-      const errorMessage = error.response?.data?.error ||
-        error.response?.data?.message ||
+      if (!error.response) {
+        console.error("Login Network Error: Cannot reach the backend. Is the Rails server running at " + client.defaults.baseURL + "?");
+        return {
+          success: false,
+          error: "Cannot connect to server. Please ensure the backend is running."
+        };
+      }
+
+      console.log("Login API Error:", error.response.status, error.response.data);
+      const errorMessage = error.response.data?.error ||
+        error.response.data?.message ||
         "Login failed - check your credentials";
+
       return {
         success: false,
         error: errorMessage
