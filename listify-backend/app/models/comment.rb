@@ -1,7 +1,7 @@
 class Comment < ApplicationRecord
   # include ActivityLoggable
   belongs_to :user
-  belongs_to :commentable, polymorphic: true
+  belongs_to :commentable, polymorphic: true, counter_cache: true
 
   # after_create :create_notification
 
