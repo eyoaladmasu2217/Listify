@@ -1,5 +1,5 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Alert, Image, ScrollView, Share, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useTheme } from "./context/ThemeContext";
 
 export default function ReviewDetail({ route, navigation }) {
@@ -22,6 +22,18 @@ export default function ReviewDetail({ route, navigation }) {
     } : review.song) : null;
     const rating = target.rating || review.rating || 0;
     const reviewText = target.review_text || review.review_text;
+
+    const handleShare = async () => {
+        try {
+            const message = `Check out ${username}'s review of "${songInfo?.title}" by ${songInfo?.artist} on Listify! 🎧\n\nRating: ${rating}/5\n${reviewText ? `"${reviewText}"` : ""}`;
+            await Share.share({
+                message,
+                title: `Listify Review - ${songInfo?.title}`,
+            });
+        } catch (error) {
+            Alert.alert("Error", "Could not share this review.");
+        }
+    };
 
     const renderStars = (rating) => {
         return (
@@ -114,7 +126,7 @@ export default function ReviewDetail({ route, navigation }) {
                         <Ionicons name="chatbubble-outline" size={24} color={theme.textSecondary} />
                         <Text style={[styles.interactionText, { color: theme.textSecondary }]}>{review.comments || 0}</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.interactionItem}>
+                    <TouchableOpacity style={styles.interactionItem} onPress={handleShare}>
                         <Ionicons name="share-social-outline" size={24} color={theme.textSecondary} />
                     </TouchableOpacity>
                 </View>
