@@ -1,6 +1,6 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useEffect, useRef, useState } from "react";
-import { ActivityIndicator, Image, ImageBackground, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Alert, Image, ImageBackground, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import client from "../api/client";
 import LogoTitle from "../components/LogoTitle";
 import { useTheme } from "../context/ThemeContext";
@@ -8,6 +8,7 @@ import { useTheme } from "../context/ThemeContext";
 export default function HomeTab({ navigation }) {
     const { theme } = useTheme();
     const [feed, setFeed] = useState([]);
+    const [trendingAlbums, setTrendingAlbums] = useState([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState("Friends"); // "Friends" or "Trending"
     const [autoScroll, setAutoScroll] = useState(true);
@@ -51,17 +52,21 @@ export default function HomeTab({ navigation }) {
 
                 console.log("Fetching feed for tab:", activeTab, "-> endpoint:", endpoint);
 
-                try {
-                    const res = await client.get(endpoint);
-                    if (res.data && res.data.length > 0) {
-                        setFeed(res.data);
-                    } else {
-                        // Keep current feed or show empty if no data from API
-                        setFeed([]);
-                    }
-                } catch (apiError) {
-                    console.log("API Error fetching feed", apiError.message);
-                    setFeed([]);
+                const requests = [client.get(endpoint)];
+                if (activeTab === "Trending") {
+                    requests.push(client.get("/albums/trending"));
+                }
+
+                const results = await Promise.all(requests);
+                const feedRes = results[0];
+                const albumsRes = results[1];
+
+                if (feedRes.data) {
+                    setFeed(feedRes.data);
+                }
+
+                if (albumsRes && albumsRes.data) {
+                    setTrendingAlbums(albumsRes.data);
                 }
             } catch (e) {
                 console.log("Error fetching feed", e);
@@ -170,6 +175,27 @@ export default function HomeTab({ navigation }) {
                         <Text style={[styles.tabText, { color: activeTab === "Trending" ? theme.text : theme.textSecondary }]}>Trending</Text>
                     </TouchableOpacity>
                 </View>
+
+                {/* Trending Albums Section (Horizontal) */}
+                {activeTab === "Trending" && trendingAlbums.length > 0 && (
+                    <View style={{ marginBottom: 25 }}>
+                        <Text style={[styles.sectionTitle, { color: theme.text }]}>Trending Albums</Text>
+                        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 15 }}>
+                            {trendingAlbums.map((album) => (
+                                <TouchableOpacity
+                                    key={album.id}
+                                    style={styles.trendingAlbumCard}
+                                    onPress={() => Alert.alert("Album", album.title)}
+                                >
+                                    <Image source={{ uri: album.cover_url }} style={styles.trendingAlbumCover} />
+                                    <Text style={[styles.trendingAlbumTitle, { color: theme.text }]} numberOfLines={1}>{album.title}</Text>
+                                    <Text style={[styles.trendingAlbumArtist, { color: theme.textSecondary }]} numberOfLines={1}>{album.artist_name || album.artist?.name}</Text>
+                                </TouchableOpacity>
+                            ))}
+                        </ScrollView>
+                        <Text style={[styles.sectionTitle, { color: theme.text, marginTop: 15 }]}>Recent Activity</Text>
+                    </View>
+                )}
 
                 {/* Activity Feed */}
                 {loading ? (
@@ -299,6 +325,28 @@ const styles = StyleSheet.create({
         color: "black", // Buttons usually allow black text on bright primary colors
         fontWeight: "700",
         fontSize: 14
+    },
+    sectionTitle: {
+        fontSize: 20,
+        fontWeight: "bold",
+        marginBottom: 15
+    },
+    trendingAlbumCard: {
+        width: 130
+    },
+    trendingAlbumCover: {
+        width: 130,
+        height: 130,
+        borderRadius: 12,
+        marginBottom: 6
+    },
+    trendingAlbumTitle: {
+        fontSize: 14,
+        fontWeight: "bold"
+    },
+    trendingAlbumArtist: {
+        fontSize: 12,
+        opacity: 0.7
     },
 
     // Tabs
