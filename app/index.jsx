@@ -9,8 +9,7 @@ import LoginScreen from "./Login";
 import RegisterScreen from "./Register";
 import ReviewDetail from "./ReviewDetail";
 import SongDetail from "./SongDetail";
-import { AuthProvider, useAuth } from "./context/AuthContext";
-import { ThemeProvider } from "./context/ThemeContext";
+import { useAuth } from "./context/AuthContext";
 
 const Stack = createNativeStackNavigator();
 
@@ -48,11 +47,5 @@ function RootNavigator() {
 }
 
 export default function App() {
-  return (
-    <AuthProvider>
-      <ThemeProvider>
-        <RootNavigator />
-      </ThemeProvider>
-    </AuthProvider>
-  );
+  return <RootNavigator />;
 }

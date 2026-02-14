@@ -1,7 +1,7 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { useCallback, useState } from "react";
-import { ActivityIndicator, Alert, Modal, Pressable, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Alert, Modal, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import client from "../api/client";
 import { useTheme } from "../context/ThemeContext";
 export default function CollectionsTab() {
@@ -343,7 +343,9 @@ export default function CollectionsTab() {
             </Modal>
         </View>
     );
-} const styles = StyleSheet.create({
+}
+
+const styles = StyleSheet.create({
     container: { flex: 1, padding: 20, paddingTop: 60 },
     header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 30 },
     title: { fontSize: 32, fontWeight: "bold" },
