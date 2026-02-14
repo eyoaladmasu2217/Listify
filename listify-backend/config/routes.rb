@@ -30,7 +30,12 @@ Rails.application.routes.draw do
       end
 
       resources :songs, only: [:index, :show] do
+        get :trending, on: :collection
         resources :reviews, only: [:index]
+      end
+
+      resources :albums, only: [:index, :show] do
+        get :trending, on: :collection
       end
 
       resources :reviews, only: [:create, :update, :destroy] do

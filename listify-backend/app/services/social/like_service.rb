@@ -12,6 +12,7 @@ class Social::LikeService < BaseService
         if like.save
           create_activity(like)
           create_notification(like)
+          update_trending_stats
           success(like)
         else
           failure(like.errors.full_messages)
@@ -45,5 +46,20 @@ class Social::LikeService < BaseService
       action: "liked",
       notifiable: like
     )
+  end
+
+  def update_trending_stats
+    return unless @likeable.is_a?(Review)
+    
+    song = @likeable.song
+    if song
+      Song.increment_counter(:likes_count, song.id)
+      song.update_trending_score!
+      
+      if song.album
+        Album.increment_counter(:likes_count, song.album_id)
+        song.album.update_trending_score!
+      end
+    end
   end
 end

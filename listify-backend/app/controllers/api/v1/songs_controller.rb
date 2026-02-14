@@ -11,13 +11,15 @@ module Api
           
           if result.success?
             songs = result.data
+            # Increment search counts
+            songs.each do |song|
+              song.increment_search_count!
+              song.album.increment_search_count! if song.album
+            end
             Rails.logger.info "Found #{songs.count} songs from Deezer"
           else
-            Rails.logger.warn "Deezer search failed: #{result.errors}"
-            # Fallback to local search if Deezer fails
             songs = Song.where("title LIKE ?", "%#{params[:q]}%")
                         .includes(:artist, :album)
-            Rails.logger.info "Fallback found #{songs.count} local songs"
           end
         else
           songs = Song.includes(:artist, :album)
@@ -25,6 +27,11 @@ module Api
                       .per(params[:per] || 20)
         end
         
+        render json: SongSerializer.render_as_json(songs), status: :ok
+      end
+
+      def trending
+        songs = Song.trending.includes(:artist, :album).limit(20)
         render json: SongSerializer.render_as_json(songs), status: :ok
       end
 

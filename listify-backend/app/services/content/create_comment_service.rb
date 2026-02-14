@@ -12,6 +12,7 @@ class Content::CreateCommentService < BaseService
       if comment.save
         create_activity(comment)
         create_notification(comment)
+        update_trending_stats
         success(comment)
       else
         failure(comment.errors.full_messages)
@@ -41,5 +42,20 @@ class Content::CreateCommentService < BaseService
       action: "commented",
       notifiable: comment
     )
+  end
+
+  def update_trending_stats
+    return unless @commentable.is_a?(Review)
+    
+    song = @commentable.song
+    if song
+      Song.increment_counter(:comments_count, song.id)
+      song.update_trending_score!
+      
+      if song.album
+        Album.increment_counter(:comments_count, song.album_id)
+        song.album.update_trending_score!
+      end
+    end
   end
 end

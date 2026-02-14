@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_02_13_160351) do
+ActiveRecord::Schema[8.0].define(version: 2026_02_13_174200) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -58,8 +58,14 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_13_160351) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "artist_id"
+    t.integer "search_count", default: 0
+    t.integer "likes_count", default: 0
+    t.integer "comments_count", default: 0
+    t.integer "reviews_count", default: 0
+    t.float "trending_score", default: 0.0
     t.index ["artist_id"], name: "index_albums_on_artist_id"
     t.index ["deezer_id"], name: "index_albums_on_deezer_id"
+    t.index ["trending_score"], name: "index_albums_on_trending_score"
   end
 
   create_table "artists", force: :cascade do |t|
@@ -182,9 +188,15 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_13_160351) do
     t.datetime "updated_at", null: false
     t.integer "artist_id"
     t.text "lyrics"
+    t.integer "search_count", default: 0
+    t.integer "likes_count", default: 0
+    t.integer "comments_count", default: 0
+    t.integer "reviews_count", default: 0
+    t.float "trending_score", default: 0.0
     t.index ["album_id"], name: "index_songs_on_album_id"
     t.index ["artist_id"], name: "index_songs_on_artist_id"
     t.index ["deezer_id"], name: "index_songs_on_deezer_id"
+    t.index ["trending_score"], name: "index_songs_on_trending_score"
   end
 
   create_table "users", force: :cascade do |t|

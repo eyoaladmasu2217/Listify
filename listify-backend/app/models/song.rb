@@ -1,4 +1,5 @@
 class Song < ApplicationRecord
+  include Trending
   belongs_to :artist, optional: true
   belongs_to :album, optional: true
 
