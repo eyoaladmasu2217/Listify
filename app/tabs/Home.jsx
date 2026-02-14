@@ -10,6 +10,7 @@ export default function HomeTab({ navigation }) {
     const [feed, setFeed] = useState([]);
     const [trendingAlbums, setTrendingAlbums] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
     const [activeTab, setActiveTab] = useState("Friends"); // "Friends" or "Trending"
     const [autoScroll, setAutoScroll] = useState(true);
     const scrollRef = useRef(null);
@@ -43,37 +44,44 @@ export default function HomeTab({ navigation }) {
         setAutoScroll(false);
     };
 
-    useEffect(() => {
-        const fetchFeed = async () => {
-            setLoading(true);
-            try {
-                // Determine endpoint based on active tab
-                const endpoint = activeTab === "Friends" ? "/feed/following" : "/feed/explore";
+    const fetchFeed = async (showLoading = true) => {
+        if (showLoading) setLoading(true);
+        try {
+            // Determine endpoint based on active tab
+            const endpoint = activeTab === "Friends" ? "/feed/following" : "/feed/explore";
 
-                console.log("Fetching feed for tab:", activeTab, "-> endpoint:", endpoint);
+            console.log("Fetching feed for tab:", activeTab, "-> endpoint:", endpoint);
 
-                const requests = [client.get(endpoint)];
-                if (activeTab === "Trending") {
-                    requests.push(client.get("/albums/trending"));
-                }
-
-                const results = await Promise.all(requests);
-                const feedRes = results[0];
-                const albumsRes = results[1];
-
-                if (feedRes.data) {
-                    setFeed(feedRes.data);
-                }
-
-                if (albumsRes && albumsRes.data) {
-                    setTrendingAlbums(albumsRes.data);
-                }
-            } catch (e) {
-                console.log("Error fetching feed", e);
-            } finally {
-                setLoading(false);
+            const requests = [client.get(endpoint)];
+            if (activeTab === "Trending") {
+                requests.push(client.get("/albums/trending"));
             }
-        };
+
+            const results = await Promise.all(requests);
+            const feedRes = results[0];
+            const albumsRes = results[1];
+
+            if (feedRes.data) {
+                setFeed(feedRes.data);
+            }
+
+            if (albumsRes && albumsRes.data) {
+                setTrendingAlbums(albumsRes.data);
+            }
+        } catch (e) {
+            console.log("Error fetching feed", e);
+        } finally {
+            setLoading(false);
+            setRefreshing(false);
+        }
+    };
+
+    const onRefresh = () => {
+        setRefreshing(true);
+        fetchFeed(false);
+    };
+
+    useEffect(() => {
         fetchFeed();
     }, [activeTab]);
 
@@ -94,7 +102,17 @@ export default function HomeTab({ navigation }) {
 
     return (
         <View style={[styles.container, { backgroundColor: theme.background }]}>
-            <ScrollView contentContainerStyle={styles.scrollContent}>
+            <ScrollView
+                contentContainerStyle={styles.scrollContent}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={onRefresh}
+                        tintColor={theme.primary}
+                        colors={[theme.primary]}
+                    />
+                }
+            >
                 <LogoTitle fontSize={28} color={theme.text} style={{ justifyContent: 'flex-start', marginBottom: 20 }} />
 
                 {/* Featured Carousel - Compact Overlay Style */}
