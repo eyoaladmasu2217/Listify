@@ -232,7 +232,7 @@ export default function ExploreTab({ navigation }) {
 
                         {collections.length === 0 ? (
                             <View style={styles.emptyCollections}>
-                                <Text style={{ color: theme.textSecondary }}>No lists found. Create one in the Library tab!</Text>
+                                <Text style={{ color: theme.textSecondary }}>No lists found. Create one in the Lists tab!</Text>
                             </View>
                         ) : (
                             <FlatList

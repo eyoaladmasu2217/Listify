@@ -1,5 +1,6 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { Image } from "react-native";
 import { useTheme } from "./context/ThemeContext";
 
 import CollectionsTab from "./tabs/Collections";
@@ -26,14 +27,26 @@ export default function AppTabs() {
                 tabBarActiveTintColor: theme.primary,
                 tabBarInactiveTintColor: "#888",
                 tabBarIcon: ({ focused, color, size }) => {
+                    if (route.name === "Lists") {
+                        return (
+                            <Image
+                                source={require("../assets/L.png")}
+                                style={{
+                                    width: size,
+                                    height: size,
+                                    tintColor: color,
+                                    resizeMode: "contain"
+                                }}
+                            />
+                        );
+                    }
+
                     let iconName;
 
                     if (route.name === "Home") {
                         iconName = focused ? "home" : "home-outline";
                     } else if (route.name === "Explore") {
                         iconName = focused ? "search" : "search-outline";
-                    } else if (route.name === "Collections") {
-                        iconName = focused ? "library" : "library-outline";
                     } else if (route.name === "Profile") {
                         iconName = focused ? "person" : "person-outline";
                     }
@@ -44,7 +57,7 @@ export default function AppTabs() {
         >
             <Tab.Screen name="Home" component={HomeTab} />
             <Tab.Screen name="Explore" component={ExploreTab} />
-            <Tab.Screen name="Collections" component={CollectionsTab} />
+            <Tab.Screen name="Lists" component={CollectionsTab} />
             <Tab.Screen name="Profile" component={ProfileTab} />
         </Tab.Navigator>
     );
