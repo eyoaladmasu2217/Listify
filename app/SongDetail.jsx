@@ -1,11 +1,15 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useEffect, useState } from "react";
-import { ActivityIndicator, Alert, FlatList, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, FlatList, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import client from "./api/client";
+import GradientButton from "./components/GradientButton";
 import { useTheme } from "./context/ThemeContext";
+import { useToast } from "./context/ToastContext";
+import haptics from "./utils/haptics";
 
 export default function SongDetail({ route, navigation }) {
     const { theme } = useTheme();
+    const { showToast } = useToast();
     const { song } = route.params || {};
     const [reviews, setReviews] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -49,15 +53,18 @@ export default function SongDetail({ route, navigation }) {
 
     const handleAddToList = async (collectionId) => {
         setAddingToList(true);
+        haptics.trigger('selection');
         try {
             await client.post(`/collections/${collectionId}/items`, {
                 song_id: song.id
             });
-            Alert.alert("Success", "Added to list!");
+            haptics.trigger('success');
+            showToast("Added to list!", "success");
             setShowListModal(false);
         } catch (error) {
             console.log("Add to list error:", error.message);
-            Alert.alert("Error", error.response?.data?.error || "Could not add to list.");
+            haptics.trigger('error');
+            showToast(error.response?.data?.error || "Could not add to list.", "error");
         } finally {
             setAddingToList(false);
         }
@@ -90,12 +97,12 @@ export default function SongDetail({ route, navigation }) {
                 <Text style={[styles.artist, { color: theme.textSecondary }]}>{song?.artist || "Unknown Artist"}</Text>
 
                 <View style={styles.actionRow}>
-                    <TouchableOpacity
-                        style={[styles.rateButton, { backgroundColor: theme.primary }]}
+                    <GradientButton
+                        style={{ flex: 2 }}
                         onPress={() => navigation.navigate("CreateReview", { song })}
                     >
-                        <Text style={styles.rateButtonText}>Log / Review</Text>
-                    </TouchableOpacity>
+                        Log / Review
+                    </GradientButton>
 
                     <TouchableOpacity
                         style={[styles.addToListButton, { backgroundColor: theme.surface }]}
