@@ -62,7 +62,7 @@ export default function CreateReview({ route, navigation }) {
                     <Ionicons name="chevron-back" size={28} color={theme.text} />
                 </TouchableOpacity>
                 <Text style={[styles.headerTitle, { color: theme.text }]}>Rate Album</Text>
-                <View style={{ width: 40 }} /> {/* Spacer */}
+                <View style={{ width: 40 }} />
             </View>
 
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
@@ -102,7 +102,7 @@ export default function CreateReview({ route, navigation }) {
                                 <Ionicons
                                     name={iconName}
                                     size={44}
-                                    color="#4ade80" // Figma Green
+                                    color="#4ade80"
                                 />
                             </TouchableOpacity>
                         );
