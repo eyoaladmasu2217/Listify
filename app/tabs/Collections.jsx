@@ -1,12 +1,21 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { useCallback, useState } from "react";
-import { ActivityIndicator, Alert, Modal, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Alert, LayoutAnimation, Modal, Platform, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, UIManager, View } from "react-native";
 import client from "../api/client";
 import { useTheme } from "../context/ThemeContext";
+import { useToast } from "../context/ToastContext";
+import haptics from "../utils/haptics";
+
+if (Platform.OS === 'android') {
+    if (UIManager.setLayoutAnimationEnabledExperimental) {
+        UIManager.setLayoutAnimationEnabledExperimental(true);
+    }
+}
 export default function CollectionsTab() {
     const navigation = useNavigation();
     const { theme } = useTheme();
+    const { showToast } = useToast();
     const [createModalVisible, setCreateModalVisible] = useState(false);
     const [editModalVisible, setEditModalVisible] = useState(false);
     const [editingCollection, setEditingCollection] = useState(null);
@@ -54,10 +63,12 @@ export default function CollectionsTab() {
             });
 
             if (response.status === 201) {
+                LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
                 setCollections([...collections, response.data]);
                 resetCreateForm();
                 setCreateModalVisible(false);
-                Alert.alert("Success", "List created successfully!");
+                haptics.trigger('success');
+                showToast("List created successfully!", "success");
             }
         } catch (error) {
             console.log("Create collection error:", error.response?.data || error.message);
@@ -139,8 +150,10 @@ export default function CollectionsTab() {
                     onPress: async () => {
                         try {
                             await client.delete(`/collections/${collection.id}`);
+                            LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
                             setCollections(collections.filter(c => c.id !== collection.id));
-                            Alert.alert("Success", "List deleted successfully!");
+                            haptics.trigger('success');
+                            showToast("List deleted successfully!", "success");
                         } catch (error) {
                             console.log("Delete collection error:", error.response?.data || error.message);
                             // Use mock data for demo
