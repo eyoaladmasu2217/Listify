@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { ActivityIndicator, StyleSheet, Text, TouchableOpacity } from "react-native";
 import client from "../api/client";
 import { useTheme } from "../context/ThemeContext";
+import haptics from "../utils/haptics";
 
 export default function FollowButton({ userId, style, size = "medium", onFollowChange }) {
     const { theme } = useTheme();
@@ -29,6 +30,8 @@ export default function FollowButton({ userId, style, size = "medium", onFollowC
     const handleFollowToggle = async () => {
         if (actionLoading) return;
 
+        haptics.trigger('selection');
+
         const previousState = isFollowing;
         setActionLoading(true);
 
@@ -42,6 +45,7 @@ export default function FollowButton({ userId, style, size = "medium", onFollowC
             } else {
                 // Follow
                 await client.post(`/users/${userId}/follow`);
+                haptics.trigger('success');
             }
 
             // Notify parent component if callback provided
@@ -52,6 +56,7 @@ export default function FollowButton({ userId, style, size = "medium", onFollowC
             console.error("Error toggling follow:", error);
             // Rollback on error
             setIsFollowing(previousState);
+            haptics.trigger('error');
         } finally {
             setActionLoading(false);
         }
