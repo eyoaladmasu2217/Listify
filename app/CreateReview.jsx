@@ -3,9 +3,12 @@ import { useState } from "react";
 import { ActivityIndicator, Alert, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import client from "./api/client";
 import { useTheme } from "./context/ThemeContext";
+import { useToast } from "./context/ToastContext";
+import haptics from "./utils/haptics";
 
 export default function CreateReview({ route, navigation }) {
     const { theme } = useTheme();
+    const { showToast } = useToast();
     const { song } = route.params || {};
     const [rating, setRating] = useState(0);
     const [text, setText] = useState("");
@@ -14,6 +17,7 @@ export default function CreateReview({ route, navigation }) {
     const handlePublish = async () => {
         if (rating === 0) {
             Alert.alert("Rating Required", "Please select a star rating.");
+            haptics.trigger('warning');
             return;
         }
 
@@ -23,14 +27,16 @@ export default function CreateReview({ route, navigation }) {
                 review: {
                     song_id: song?.id,
                     rating: rating,
-                    review_text: text // Matches backend parameter name
+                    review_text: text
                 }
             });
-            Alert.alert("Success", "Review published!");
+            haptics.trigger('success');
+            showToast("Review published!", "success");
             navigation.goBack();
         } catch (error) {
             console.log("Review Error:", error.response?.data || error.message);
-            Alert.alert("Save Failed", "Could not connect to the server to save your review. Check if the Rails server is running with -b 0.0.0.0");
+            haptics.trigger('error');
+            showToast("Could not save review. Check server connection.", "error");
         } finally {
             setLoading(false);
         }
@@ -41,7 +47,11 @@ export default function CreateReview({ route, navigation }) {
         const starWidth = 44; // size in icon
         const isHalf = locationX < starWidth / 2;
         const newRating = isHalf ? starIndex - 0.5 : starIndex;
-        setRating(newRating);
+
+        if (newRating !== rating) {
+            haptics.trigger('selection');
+            setRating(newRating);
+        }
     };
 
     return (
