@@ -1,73 +1,116 @@
-# Listify
+# 🎵 Listify
 
-Listify is a mobile application built with Expo and React Native that allows users to rate music albums and share their ratings with friends. Discover new music through a feed of your friends' activity and see what's trending.
+**Listify** is a social music discovery platform that redefines how you track, rate, and share your favorite tunes. Built with a robust **Ruby on Rails** backend and a polished **React Native (Expo)** frontend, Listify bridges the gap between personal music curation and social connection.
 
-## Key Features
+Stop losing music recommendations in random chat threads. **Listify is the dedicated space for the music that matters.**
 
-- **Social Music Rating:** Rate your favorite albums and see what your friends are listening to and rating.
-- **Authentication:** Secure login with email/password or use social providers like Spotify, Google, and Apple for a seamless experience.
-- **Dynamic Homepage:** Features a prominent album for rating, a feed of friends' recent ratings, and a section for trending music.
-- **Customizable Themes:** Choose from several color themes (Green, Blue, Purple, Red) to personalize your app experience.
-- **Cross-Platform:** Built with Expo to run on iOS, Android, and the web from a single codebase.
+---
 
-## Tech Stack
+## ✨ Key Features
 
-- **Framework:** React Native, Expo
-- **Routing:** Expo Router
-- **Navigation:** React Navigation
-- **Language:** TypeScript & JavaScript (JSX)
-- **Styling:** React Native StyleSheet
-- **Linting:** ESLint
+- **📱 Premium Mobile Experience**
+  - **Tactile Interactions:** Integrated **Haptic Feedback** for a responsive, physical feel on every action.
+  - **Fluid Animations:** Smooth layout transitions and skeleton loading states for a seamless user experience.
+  - **Modern UI:** Features **Gradient Buttons**, Glassmorphism elements, and a dark-mode-first aesthetic.
 
-## Getting Started
+- **🎧 Comprehensive Discovery**
+  - **Trending Feed:** Real-time updates on the hottest songs and albums.
+  - **Social Graph:** Follow friends and influencers to see their latest reviews and activities on your home feed.
+  - **Search:** Instant search across a vast library of songs, albums, and artists.
 
-Follow these instructions to get a local copy of the project up and running.
+- **📝 Reviews & Ratings**
+  - **Deep Reviews:** Rate albums on a 5-star scale and write detailed reviews.
+  - **Community Feedback:** Like and comment on reviews to engage with the community.
+  - **Toast Notifications:** Non-intrusive, verified feedback for all your interactions.
+
+- **Example Lists & Collections**
+  - **Curate:** Create public or private lists (e.g., "Late Night Vibes", "Gym Hits").
+  - **Manage:** Easily add songs to your collections with a single tap.
+
+---
+
+## 🛠️ Tech Stack
+
+### **Frontend (Mobile)**
+- **Framework:** [React Native](https://reactnative.dev/) with [Expo](https://expo.dev/)
+- **Navigation:** Expo Router (File-based routing)
+- **Styling:** React Native StyleSheet & Custom Design System
+- **State Management:** React Context API (Auth, Theme, Toast)
+- **Key Libraries:**
+  - `expo-haptics`: For tactile feedback.
+  - `expo-image`: for optimized caching and performance.
+  - `expo-linear-gradient`: For advanced UI styling.
+  - `axios`: For robust API communication.
+
+### **Backend (API)**
+- **Framework:** [Ruby on Rails](https://rubyonrails.org/) (API Mode)
+- **Database:** SQLite (Development) / PostgreSQL (Production ready)
+- **Authentication:** Custom JWT-based authentication.
+- **Architecture:** RESTful API design serving JSON data.
+
+---
+
+## 🚀 Getting Started
 
 ### Prerequisites
+- Node.js & npm/yarn
+- Ruby & Rails (for backend)
+- Expo Go app on your phone (or an emulator)
 
-- Node.js
-- npm (or yarn/pnpm)
-- Expo Go app on your mobile device (optional, for physical device testing)
+### Installation
 
-### Installation & Launch
+#### 1. Backend Setup
+```bash
+# Clone the repository
+git clone https://github.com/eyoaladmasu2217/listify.git
+cd listify/listify-backend
 
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/eyoaladmasu2217/listify.git
-    cd listify
-    ```
-2.  **Install dependencies:**
-    ```bash
-    npm install
-    ```
-3.  **Start the development server:**
-    ```bash
-    npx expo start
-    ```
+# Install dependencies
+bundle install
 
-This will open the Expo developer tools in your browser. You can then choose to run the app in:
-- An Android emulator
-- An iOS simulator
-- A web browser
-- The Expo Go app on your physical device (by scanning the QR code)
+# Setup Database
+rails db:create db:migrate db:seed
 
-## Available Scripts
+# Run the Server (bind to 0.0.0.0 for Expo access)
+rails s -b 0.0.0.0
+```
 
-In the project directory, you can run the following commands:
+#### 2. Frontend Setup
+```bash
+# Navigate to app directory
+cd listify
 
--   `npm start`: Runs the app in development mode using the Expo CLI.
--   `npm run android`: Runs the app on a connected Android device or emulator.
--   `npm run ios`: Runs the app on the iOS simulator.
--   `npm run web`: Runs the app in a web browser.
--   `npm run lint`: Lints the project files using ESLint.
--   `npm run reset-project`: Resets the project to a blank Expo starter template, moving the existing example files to an `app-example` directory.
+# Install dependencies
+npm install
 
-## Project Structure
+# Start the Expo development server
+npx expo start
+```
 
--   `app/`: Contains all screens and routes for the application, using Expo's file-based routing.
-    -   `login.jsx`: The authentication screen with social login options.
-    -   `homepage.jsx`: The main screen after logging in, displaying album ratings and social feeds.
--   `assets/`: Stores static assets like images, icons, and fonts.
--   `constants/`: Includes application-wide constants, such as color palettes and theme configurations (`theme.ts`).
--   `hooks/`: Home for custom React hooks used throughout the app, like `useThemeColor` for handling dynamic theming.
--   `scripts/`: Contains helper scripts for project management, such as `reset-project.js`.
+---
+
+## 📸 Screenshots
+
+| Home Feed | Song Detail | Review Flow |
+|:---:|:---:|:---:|
+| <img src="./assets/screenshots/home.png" width="200" alt="Home Feed" /> | <img src="./assets/screenshots/detail.png" width="200" alt="Song Detail" /> | <img src="./assets/screenshots/review.png" width="200" alt="Review Flow" /> |
+
+*(Note: Add your screenshots to an `assets/screenshots` folder to display them here)*
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+---
+
+## 📄 License
+
+Distributed under the MIT License. See `LICENSE` for more information.
