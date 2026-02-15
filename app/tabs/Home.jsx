@@ -1,8 +1,9 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useEffect, useRef, useState } from "react";
-import { ActivityIndicator, Alert, Image, ImageBackground, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Alert, Image, ImageBackground, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import client from "../api/client";
 import LogoTitle from "../components/LogoTitle";
+import Skeleton from "../components/Skeleton";
 import { useTheme } from "../context/ThemeContext";
 
 export default function HomeTab({ navigation }) {
@@ -217,7 +218,22 @@ export default function HomeTab({ navigation }) {
 
                 {/* Activity Feed */}
                 {loading ? (
-                    <ActivityIndicator color={theme.primary} style={{ marginTop: 20 }} />
+                    <View style={{ gap: 15 }}>
+                        {[1, 2, 3].map((i) => (
+                            <View key={i} style={[styles.feedCard, { backgroundColor: "#1A1A1A" }]}>
+                                <View style={{ flex: 1, marginRight: 15 }}>
+                                    <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 8 }}>
+                                        <Skeleton width={24} height={24} borderRadius={12} />
+                                        <Skeleton width={100} height={14} style={{ marginLeft: 8 }} />
+                                    </View>
+                                    <Skeleton width={150} height={20} style={{ marginBottom: 4 }} />
+                                    <Skeleton width={100} height={14} style={{ marginBottom: 8 }} />
+                                    <Skeleton width="100%" height={14} />
+                                </View>
+                                <Skeleton width={80} height={80} borderRadius={8} />
+                            </View>
+                        ))}
+                    </View>
                 ) : (
                     <View style={{ gap: 15 }}>
                         {feed.map((item, index) => {
