@@ -1,10 +1,22 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { Alert, Image, ScrollView, Share, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Image } from "expo-image";
+import { Alert, Image as RNImage, Share, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useTheme } from "./context/ThemeContext";
 
 export default function ReviewDetail({ route, navigation }) {
     const { theme } = useTheme();
     const { review } = route.params || {};
+
+    if (!review) {
+        return (
+            <View style={[styles.container, { backgroundColor: theme.background, justifyContent: 'center', alignItems: 'center' }]}>
+                <Text style={{ color: theme.textSecondary, marginBottom: 20 }}>Review not found</Text>
+                <TouchableOpacity onPress={() => navigation.goBack()}>
+                    <Ionicons name="arrow-back" size={24} color={theme.text} />
+                </TouchableOpacity>
+            </View>
+        );
+    }
 
     // Normalize review data
     const actor = review.actor || review.user;
@@ -66,7 +78,7 @@ export default function ReviewDetail({ route, navigation }) {
             <ScrollView contentContainerStyle={styles.scrollContent}>
                 {/* User Header */}
                 <View style={styles.userHeader}>
-                    <Image source={{ uri: avatar }} style={styles.avatar} />
+                    <Image source={{ uri: avatar }} style={styles.avatar} contentFit="cover" transition={200} />
                     <View>
                         <Text style={[styles.username, { color: theme.text }]}>{String(username)}</Text>
                         <Text style={[styles.actionText, { color: theme.textSecondary }]}>
@@ -83,13 +95,15 @@ export default function ReviewDetail({ route, navigation }) {
                             id: songInfo?.id,
                             title: songInfo?.title,
                             artist: songInfo?.artist,
-                            cover: typeof songInfo?.cover === 'number' ? Image.resolveAssetSource(songInfo.cover).uri : (songInfo?.cover || "https://via.placeholder.com/150")
+                            cover: typeof songInfo?.cover === 'number' ? RNImage.resolveAssetSource(songInfo.cover).uri : (songInfo?.cover || "https://via.placeholder.com/150")
                         }
                     })}
                 >
                     <Image
                         source={typeof songInfo?.cover === 'number' ? songInfo.cover : { uri: songInfo?.cover || "https://via.placeholder.com/150" }}
                         style={styles.cover}
+                        contentFit="cover"
+                        transition={500}
                     />
                     <View style={styles.coverOverlay}>
                         <Ionicons name="star" size={24} color="white" />
