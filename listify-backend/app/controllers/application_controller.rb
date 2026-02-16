@@ -9,7 +9,19 @@ class ApplicationController < ActionController::API
   # JWT authentication for API requests
   before_action :authenticate_request!
 
+  # Global Error Handling
+  rescue_from ActiveRecord::RecordNotFound, with: :not_found
+  rescue_from ActionController::ParameterMissing, with: :bad_request
+
   private
+
+  def not_found(exception)
+    render json: { error: exception.message }, status: :not_found
+  end
+
+  def bad_request(exception)
+    render json: { error: exception.message }, status: :bad_request
+  end
 
   # This method checks the Authorization header for a JWT token
   def authenticate_request!
