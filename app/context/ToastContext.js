@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useState } from 'react';
+import { createContext, useCallback, useContext, useRef, useState } from 'react';
 
 const ToastContext = createContext();
 
@@ -12,18 +12,29 @@ export const useToast = () => {
 
 export const ToastProvider = ({ children }) => {
     const [toast, setToast] = useState(null);
+    const timerRef = useRef(null);
 
     const showToast = useCallback((message, type = 'success', duration = 3000) => {
+        // Clear existing timer if any
+        if (timerRef.current) {
+            clearTimeout(timerRef.current);
+        }
+
         setToast({ message, type, id: Date.now() });
 
         if (duration > 0) {
-            setTimeout(() => {
-                setToast(current => current?.id === toast?.id ? null : current);
+            timerRef.current = setTimeout(() => {
+                setToast(null);
+                timerRef.current = null;
             }, duration);
         }
-    }, [toast]);
+    }, []);
 
     const hideToast = useCallback(() => {
+        if (timerRef.current) {
+            clearTimeout(timerRef.current);
+            timerRef.current = null;
+        }
         setToast(null);
     }, []);
 
