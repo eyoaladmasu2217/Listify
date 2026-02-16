@@ -7,18 +7,13 @@ class Social::LikeService < BaseService
   def call
     ActiveRecord::Base.transaction do
       like = Like.find_or_initialize_by(user: @user, likeable: @likeable)
+      return failure("Already liked") unless like.new_record?
 
-      if like.new_record?
-        if like.save
-          create_activity(like)
-          create_notification(like)
-          update_trending_stats
-          success(like)
-        else
-          failure(like.errors.full_messages)
-        end
+      if like.save
+        trigger_post_like_actions(like)
+        success(like)
       else
-        failure("Already liked")
+        failure(like.errors.full_messages)
       end
     end
   rescue StandardError => e
@@ -26,6 +21,12 @@ class Social::LikeService < BaseService
   end
 
   private
+
+  def trigger_post_like_actions(like)
+    create_activity(like)
+    create_notification(like)
+    update_trending_stats
+  end
 
   def create_activity(like)
     Activity.create!(
