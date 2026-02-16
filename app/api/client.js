@@ -2,30 +2,38 @@ import axios from "axios";
 import Constants from "expo-constants";
 import * as SecureStore from "expo-secure-store";
 
-// Get API host from environment or use default
-// Configure in app.json: { "extra": { "EXPO_PUBLIC_API_HOST": "192.168.1.100" } }
-const LOCAL_API_HOST = Constants?.expoConfig?.extra?.EXPO_PUBLIC_API_HOST ||
-  Constants?.expoConfig?.extra?.host ||
-  '192.168.1.4';
+const TIMEOUT_MS = 10000;
 
-// Determine base URL
-const getBaseURL = () => {
+// Configuration for API host
+const getApiConfig = () => {
+  const extra = Constants?.expoConfig?.extra;
+  const host = extra?.EXPO_PUBLIC_API_HOST || extra?.host || '192.168.1.4';
+
+  // In development, prioritize local network interaction
   if (__DEV__) {
-    // For physical devices, use local IP instead of localhost
-    return `http://${LOCAL_API_HOST}:3000/api/v1`;
+    return {
+      baseURL: `http://${host}:3000/api/v1`,
+      isDev: true
+    };
   }
-  return "https://YOUR_PRODUCTION_DOMAIN/api/v1";
+
+  return {
+    baseURL: "https://YOUR_PRODUCTION_DOMAIN/api/v1", // TODO: Update with production URL
+    isDev: false
+  };
 };
 
+const { baseURL } = getApiConfig();
+
 const client = axios.create({
-  baseURL: getBaseURL(),
-  timeout: 8000,
+  baseURL,
+  timeout: TIMEOUT_MS,
   headers: { "Content-Type": "application/json" },
 });
 
-// Attach token for all environments
+// Request Interceptor: Attach Auth Token
 client.interceptors.request.use(async (config) => {
-  // Skip auth header for logout endpoint
+  // Public endpoints bypass
   if (config.url?.includes('/auth/logout')) {
     return config;
   }
@@ -34,22 +42,38 @@ client.interceptors.request.use(async (config) => {
     const token = await SecureStore.getItemAsync("auth_token");
     if (token && token !== 'mock.jwt.token') {
       config.headers.Authorization = `Bearer ${token}`;
-      console.log("Sending request to:", config.baseURL + config.url);
-      console.log("Token (first 50 chars):", token.slice(0, 50) + "...");
-    } else {
-      console.log("No valid auth token found for:", config.url);
+
+      if (__DEV__) {
+        console.debug(`[API Request] ${config.method.toUpperCase()} ${config.baseURL}${config.url}`);
+      }
+    } else if (__DEV__) {
+      console.debug(`[API Request] No auth token for: ${config.url}`);
     }
   } catch (err) {
-    console.log("Error getting auth token:", err.message);
+    console.error("[API Error] Failed to retrieve auth token:", err.message);
   }
   return config;
 });
 
-// Log response errors for debugging
+// Response Interceptor: Error Handling
 client.interceptors.response.use(
   (response) => response,
   (error) => {
-    console.log("API Error:", error.response?.status, error.response?.data || error.message);
+    if (error.response) {
+      // Server responded with non-2xx code
+      console.error(`[API Error ${error.response.status}]`, error.response.data || error.message);
+
+      if (error.response.status === 401) {
+        // TODO: Trigger global logout or token refresh if implemented
+        console.warn("Unauthorized access - token might be expired");
+      }
+    } else if (error.request) {
+      // Request made but no response
+      console.error("[API Error] No response received:", error.request);
+    } else {
+      // Request setup error
+      console.error("[API Error] Request setup failed:", error.message);
+    }
     return Promise.reject(error);
   }
 );
