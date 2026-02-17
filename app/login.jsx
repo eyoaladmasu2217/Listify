@@ -80,7 +80,7 @@ export default function LoginScreen({ navigation }) {
       </TouchableOpacity>
 
       <TouchableOpacity onPress={() => navigation.navigate("Register")} style={styles.linkButton}>
-        <Text style={[styles.linkText, { color: theme.primary }]}>Don't have an account? Sign Up</Text>
+        <Text style={[styles.linkText, { color: theme.primary }]}>Don’t have an account? Sign Up</Text>
       </TouchableOpacity>
 
       {/* Theme Selector */}
