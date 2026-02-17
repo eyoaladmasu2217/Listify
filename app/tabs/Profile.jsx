@@ -120,13 +120,19 @@ export default function ProfileTab({ navigation, route }) {
             <View style={styles.actionButtonsRow}>
                 <TouchableOpacity
                     style={[styles.actionButton, { backgroundColor: theme.surface }]}
-                    onPress={() => navigation.navigate("EditProfile")}
+                    onPress={() => {
+                        haptics.trigger('selection');
+                        navigation.navigate("EditProfile");
+                    }}
                 >
                     <Text style={[styles.actionButtonText, { color: theme.text }]}>Edit Profile</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                     style={[styles.actionButton, { backgroundColor: theme.surface }]}
-                    onPress={() => Share.share({ message: `Check out my music profile on Listify: @${displayUser.username}!` })}
+                    onPress={() => {
+                        haptics.trigger('selection');
+                        Share.share({ message: `Check out my music profile on Listify: @${displayUser.username}!` });
+                    }}
                 >
                     <Text style={[styles.actionButtonText, { color: theme.text }]}>Share Profile</Text>
                 </TouchableOpacity>
@@ -149,7 +155,10 @@ export default function ProfileTab({ navigation, route }) {
                         <TouchableOpacity
                             key={item.id}
                             style={[styles.reviewCard, { backgroundColor: theme.surface }]}
-                            onPress={() => navigation.navigate("ReviewDetail", { review: { ...item, actor: displayUser } })}
+                            onPress={() => {
+                                haptics.trigger('light');
+                                navigation.navigate("ReviewDetail", { review: { ...item, actor: displayUser } });
+                            }}
                         >
                             <Image
                                 source={{ uri: item.song?.cover_url || "https://via.placeholder.com/150" }}
