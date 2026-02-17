@@ -2,6 +2,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { useEffect, useRef, useState } from "react";
 import { Alert, Image, ImageBackground, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import client from "../api/client";
+import haptics from "../utils/haptics";
 import LogoTitle from "../components/LogoTitle";
 import Skeleton from "../components/Skeleton";
 import { useTheme } from "../context/ThemeContext";

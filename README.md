@@ -109,24 +109,6 @@ Notes
 
 ## Screenshots and media
 
-You can provide app screenshots and I will include them in the README and commit them into `assets/images/screenshots/`.
-
-To provide screenshots, either:
-
-1. Attach them directly to this chat (preferred). Tell me the filenames or desired captions.
-2. Commit the image files yourself to `assets/images/screenshots/` and tell me the filenames; I will add them to the README references and commit.
-
-Guidelines for screenshots:
-- Use PNG or JPEG files.
-- Prefer 1080×1920 or similar portrait resolutions for mobile screenshots.
-- Provide short captions for each screenshot if you want them displayed under the image.
-
-Example markdown snippet I will add for screenshots:
-
-```markdown
-![Home screen](assets/images/screenshots/home.png)
-*Home screen — activity feed and featured album*
-```
 
 ## Contributing
 
@@ -145,11 +127,3 @@ If you plan to contribute:
 
 This repository does not currently specify a license file. Add a `LICENSE` if you wish to make the project open source.
 
----
-
-If you want, I can now:
-
-1. Add any screenshots you attach into `assets/images/screenshots/` and update the README with the image references, then commit and push.
-2. Create a short CONTRIBUTING.md with contribution instructions.
-
-Tell me which you prefer and attach screenshots if you want them included.
