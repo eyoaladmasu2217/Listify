@@ -53,15 +53,16 @@ export default function ExploreTab({ navigation }) {
         }
     };
 
+    // Local mock data used as a fallback when the API is unavailable
+    const MOCK_SONGS = [
+        { id: 1, title: "Billie Jean", artist_name: "Michael Jackson", cover_url: "https://upload.wikimedia.org/wikipedia/en/5/55/Michael_Jackson_-_Thriller.png" },
+        { id: 2, title: "Come Together", artist_name: "The Beatles", cover_url: "https://upload.wikimedia.org/wikipedia/en/4/42/Beatles_-_Abbey_Road.jpg" },
+        { id: 3, title: "Get Lucky", artist_name: "Daft Punk", cover_url: "https://upload.wikimedia.org/wikipedia/en/a/a7/Random_Access_Memories.jpg" },
+        { id: 4, title: "Blinding Lights", artist_name: "The Weeknd", cover_url: "https://upload.wikimedia.org/wikipedia/en/e/e6/The_Weeknd_-_Blinding_Lights.png" }
+    ];
+
     useEffect(() => {
         const fetchInitialData = async () => {
-            const mockSongs = [
-                { id: 1, title: "Billie Jean", artist_name: "Michael Jackson", cover_url: "https://upload.wikimedia.org/wikipedia/en/5/55/Michael_Jackson_-_Thriller.png" },
-                { id: 2, title: "Come Together", artist_name: "The Beatles", cover_url: "https://upload.wikimedia.org/wikipedia/en/4/42/Beatles_-_Abbey_Road.jpg" },
-                { id: 3, title: "Get Lucky", artist_name: "Daft Punk", cover_url: "https://upload.wikimedia.org/wikipedia/en/a/a7/Random_Access_Memories.jpg" },
-                { id: 4, title: "Blinding Lights", artist_name: "The Weeknd", cover_url: "https://upload.wikimedia.org/wikipedia/en/e/e6/The_Weeknd_-_Blinding_Lights.png" }
-            ];
-
             try {
                 // Fetch trending songs and trending albums in parallel
                 const [songsRes, albumsRes] = await Promise.all([
@@ -69,11 +70,12 @@ export default function ExploreTab({ navigation }) {
                     client.get("/albums/trending")
                 ]);
 
-                setSongs(songsRes.data.length > 0 ? songsRes.data : mockSongs);
-                setTrendingAlbums(albumsRes.data);
+                setSongs(songsRes.data.length > 0 ? songsRes.data : MOCK_SONGS);
+                setTrendingAlbums(albumsRes.data || []);
             } catch (e) {
                 console.log("Error fetching initial data", e.message);
-                setSongs(mockSongs);
+                setSongs(MOCK_SONGS);
+                setTrendingAlbums([]);
             } finally {
                 setLoading(false);
             }
@@ -88,9 +90,11 @@ export default function ExploreTab({ navigation }) {
             setLoading(true);
             try {
                 const res = await client.get("/songs");
-                setSongs(res.data || []);
+                setSongs(res.data || MOCK_SONGS);
             } catch (e) {
                 console.log("Error resetting songs", e.message);
+                // Fallback to local mock data
+                setSongs(MOCK_SONGS);
             } finally {
                 setLoading(false);
             }
@@ -104,6 +108,10 @@ export default function ExploreTab({ navigation }) {
             setSongs(res.data || []);
         } catch (e) {
             console.log("Search error", e.message);
+            // If API search fails, fallback to local filtering
+            const q = query.trim().toLowerCase();
+            const filtered = MOCK_SONGS.filter(s => (s.title || "").toLowerCase().includes(q) || (s.artist_name || "").toLowerCase().includes(q));
+            setSongs(filtered);
         } finally {
             setLoading(false);
         }
