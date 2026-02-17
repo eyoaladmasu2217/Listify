@@ -13,9 +13,11 @@ export default function ProfileTab({ navigation, route }) {
     const [profile, setProfile] = useState(null);
     const [reviews, setReviews] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
     const [isSettingsVisible, setSettingsVisible] = useState(false);
 
-    const fetchProfileData = useCallback(async () => {
+    const fetchProfileData = useCallback(async (isRefreshing = false) => {
+        if (!isRefreshing) setLoading(true);
         try {
             // Fetch profile and reviews in parallel
             const [profileRes, reviewsRes] = await Promise.all([
@@ -27,9 +29,18 @@ export default function ProfileTab({ navigation, route }) {
         } catch (e) {
             console.log("Error fetching profile data", e.message);
         } finally {
-            setLoading(false);
+            if (isRefreshing) {
+                setRefreshing(false);
+            } else {
+                setLoading(false);
+            }
         }
     }, []);
+
+    const onRefresh = useCallback(() => {
+        setRefreshing(true);
+        fetchProfileData(true);
+    }, [fetchProfileData]);
 
     useFocusEffect(
         useCallback(() => {
@@ -63,7 +74,18 @@ export default function ProfileTab({ navigation, route }) {
     };
 
     return (
-        <ScrollView style={[styles.container, { backgroundColor: theme.background }]} contentContainerStyle={{ paddingBottom: 40 }}>
+        <ScrollView
+            style={[styles.container, { backgroundColor: theme.background }]}
+            contentContainerStyle={{ paddingBottom: 40 }}
+            refreshControl={
+                <RefreshControl
+                    refreshing={refreshing}
+                    onRefresh={onRefresh}
+                    tintColor={theme.primary}
+                    colors={[theme.primary]}
+                />
+            }
+        >
             <SettingsModal visible={isSettingsVisible} onClose={() => setSettingsVisible(false)} />
             <View style={styles.topBar}>
                 <TouchableOpacity onPress={() => setSettingsVisible(true)}>
