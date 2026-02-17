@@ -146,8 +146,21 @@ export default function ProfileTab({ navigation, route }) {
 
             {reviews.length === 0 ? (
                 <View style={[styles.emptyState, { backgroundColor: theme.surface }]}>
-                    <Ionicons name="musical-notes-outline" size={40} color={theme.textSecondary} />
-                    <Text style={[styles.emptyText, { color: theme.textSecondary }]}>No reviews yet. Start rating!</Text>
+                    <Ionicons name="musical-notes-outline" size={48} color={theme.textSecondary} />
+                    <Text style={[styles.emptyTitle, { color: theme.text }]}>No Reviews Yet</Text>
+                    <Text style={[styles.emptyText, { color: theme.textSecondary }]}>
+                        Start sharing your music taste with the community!
+                    </Text>
+                    <TouchableOpacity
+                        style={[styles.ctaButton, { backgroundColor: theme.primary }]}
+                        onPress={() => {
+                            haptics.trigger('selection');
+                            navigation.navigate('MainTabs', { screen: 'Search' });
+                        }}
+                    >
+                        <Ionicons name="search" size={18} color="#000" />
+                        <Text style={styles.ctaButtonText}>Discover Music</Text>
+                    </TouchableOpacity>
                 </View>
             ) : (
                 <View style={styles.reviewsList}>
@@ -224,8 +237,21 @@ const styles = StyleSheet.create({
     timeAgo: { fontSize: 10, opacity: 0.5 },
     reviewSnippet: { fontSize: 12, fontStyle: 'italic', opacity: 0.8 },
 
-    emptyState: { padding: 40, borderRadius: 16, alignItems: 'center', gap: 10, marginTop: 10 },
-    emptyText: { fontSize: 14, textAlign: 'center' },
+
+    emptyState: { padding: 40, borderRadius: 16, alignItems: 'center', gap: 12, marginTop: 10 },
+    emptyTitle: { fontSize: 18, fontWeight: '700', textAlign: 'center', marginTop: 8 },
+    emptyText: { fontSize: 14, textAlign: 'center', opacity: 0.7, marginBottom: 8 },
+    ctaButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+        paddingHorizontal: 24,
+        paddingVertical: 12,
+        borderRadius: 24,
+        marginTop: 8
+    },
+    ctaButtonText: { color: '#000', fontSize: 15, fontWeight: '700' },
+
 
     logoutButton: { padding: 15, borderRadius: 12, borderWidth: 1, alignItems: "center" },
 });
