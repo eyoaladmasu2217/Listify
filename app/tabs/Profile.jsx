@@ -1,7 +1,7 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback, useState } from "react";
-import { ActivityIndicator, Image, ScrollView, Share, StyleSheet, Text, TouchableOpacity, View, RefreshControl } from "react-native";
+import { ActivityIndicator, Image, RefreshControl, ScrollView, Share, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import client from "../api/client";
 import SettingsModal from "../components/SettingsModal";
 import { useAuth } from "../context/AuthContext";

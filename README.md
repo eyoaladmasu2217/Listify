@@ -120,11 +120,11 @@ If you plan to contribute:
 
 ## Notes and known requirements
 
+- The backend includes pending database migrations that must be applied before running the Rails test suite and server.
+- Production configuration (OAuth provider keys, database credentials) is not included in this repository and must be provided via environment variables or a secrets manager.
+
+
 
 ## License
 
-This project is licensed under the MIT Licens.
-
-
-
-
+This project is licensed under the MIT Licens
