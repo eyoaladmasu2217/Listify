@@ -7,7 +7,7 @@ import SettingsModal from "../components/SettingsModal";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 
-export default function ProfileTab({ navigation }) {
+export default function ProfileTab({ navigation, route }) {
     const { theme } = useTheme();
     const { user, logout } = useAuth();
     const [profile, setProfile] = useState(null);
@@ -34,7 +34,13 @@ export default function ProfileTab({ navigation }) {
     useFocusEffect(
         useCallback(() => {
             fetchProfileData();
-        }, [fetchProfileData])
+
+            // Check if we need to refresh due to new review
+            if (route?.params?.refreshReviews) {
+                // Clear the param to avoid repeated refreshes
+                navigation.setParams({ refreshReviews: false });
+            }
+        }, [fetchProfileData, route?.params?.refreshReviews, navigation])
     );
 
     if (loading) return <View style={[styles.container, { backgroundColor: theme.background, justifyContent: 'center' }]}><ActivityIndicator color={theme.primary} /></View>;

@@ -23,7 +23,7 @@ export default function CreateReview({ route, navigation }) {
 
         setLoading(true);
         try {
-            await client.post("/reviews", {
+            const response = await client.post("/reviews", {
                 review: {
                     song_id: song?.id,
                     rating: rating,
@@ -32,7 +32,12 @@ export default function CreateReview({ route, navigation }) {
             });
             haptics.trigger('success');
             showToast("Review published!", "success");
-            navigation.goBack();
+
+            // Navigate back and trigger profile refresh
+            navigation.navigate('MainTabs', {
+                screen: 'Profile',
+                params: { refreshReviews: true, newReview: response.data }
+            });
         } catch (error) {
             console.log("Review Error:", error.response?.data || error.message);
             haptics.trigger('error');
