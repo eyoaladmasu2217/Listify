@@ -7,12 +7,13 @@ Listify is a mobile application built with Expo and React Native that allows use
 - **Social Music Rating:** Rate your favorite albums and see what your friends are listening to and rating.
 - **Authentication:** Secure login with email/password or use social providers like Spotify, Google, and Apple for a seamless experience.
 - **Dynamic Homepage:** Features a prominent album for rating, a feed of friends' recent ratings, and a section for trending music.
-- **Customizable Themes:** Choose from several color themes (Green, Blue, Purple, Red) to personalize your app experience.
+- **Customizable Themes:** Choose from several color themes (Green, Blue, Brown, Red) to personalize your app experience.
 - **Cross-Platform:** Built with Expo to run on iOS, Android, and the web from a single codebase.
 
 ## Tech Stack
 
 - **Framework:** React Native, Expo
+  **Backend:** Ruby on Rails
 # Listify
 
 Listify is a music discovery and social-rating application. The mobile client is implemented with Expo and React Native and pairs with a Rails-based backend located in the `listify-backend` directory. Users can create accounts, rate albums, follow other users, and view activity and trending lists.
@@ -35,7 +36,7 @@ Listify is a music discovery and social-rating application. The mobile client is
 ## Technology overview
 
 - Frontend: Expo (SDK), React Native, React Navigation, Expo Router.
-- Backend: Ruby on Rails (API), SQLite for development (PostgreSQL recommended for production).
+- Backend: Ruby on Rails (API), SQLite for development.
 - API communication: `axios` from the client to the backend.
 - Linting and types: ESLint and TypeScript type declarations where applicable.
 
@@ -97,7 +98,7 @@ Notes
 - `npm run ios` — Start and target an iOS simulator
 - `npm run web` — Run the web build via Expo for web
 - `npm run lint` — Run ESLint
-- `npm run reset-project` — Move current example app files and reinitialize a starter template (use with caution)
+- `npm run reset-project` — Move current example app files and reinitialize a starter template 
 
 ## Project structure (high level)
 
@@ -107,7 +108,6 @@ Notes
 - `app/context/` — React contexts: `AuthContext`, `ThemeContext`, `ToastContext`
 - `listify-backend/` — Rails API, models, serializers, controllers, and test suite
 
-## Screenshots and media
 
 
 ## Contributing
@@ -123,7 +123,5 @@ If you plan to contribute:
 - The backend includes pending database migrations that must be applied before running the Rails test suite and server.
 - Production configuration (OAuth provider keys, database credentials) is not included in this repository and must be provided via environment variables or a secrets manager.
 
-## License
 
-This repository does not currently specify a license file. Add a `LICENSE` if you wish to make the project open source.
 
