@@ -89,14 +89,22 @@ export default function HomeTab({ navigation }) {
     const renderStars = (rating) => {
         return (
             <View style={{ flexDirection: 'row', gap: 2 }}>
-                {[1, 2, 3, 4, 5].map((star) => (
-                    <Ionicons
-                        key={star}
-                        name={star <= rating ? "star" : "star-outline"}
-                        size={14}
-                        color={theme.primary}
-                    />
-                ))}
+                {[1, 2, 3, 4, 5].map((star) => {
+                    let iconName = "star-outline";
+                    if (rating >= star) {
+                        iconName = "star";
+                    } else if (rating >= star - 0.5) {
+                        iconName = "star-half";
+                    }
+                    return (
+                        <Ionicons
+                            key={star}
+                            name={iconName}
+                            size={14}
+                            color={theme.primary}
+                        />
+                    );
+                })}
             </View>
         );
     };
