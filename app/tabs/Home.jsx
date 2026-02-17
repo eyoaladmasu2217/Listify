@@ -155,9 +155,12 @@ export default function HomeTab({ navigation }) {
                             key={index}
                             activeOpacity={0.9}
                             onPressIn={handleTouch}
-                            onPress={() => navigation.navigate("CreateReview", {
-                                song: { ...album, cover: Image.resolveAssetSource(album.cover).uri }
-                            })}
+                            onPress={() => {
+                                haptics.trigger('light');
+                                navigation.navigate("CreateReview", {
+                                    song: { ...album, cover: Image.resolveAssetSource(album.cover).uri }
+                                });
+                            }}
                         >
                             <ImageBackground
                                 source={album.cover}
@@ -183,13 +186,19 @@ export default function HomeTab({ navigation }) {
                 <View style={styles.tabContainer}>
                     <TouchableOpacity
                         style={[styles.tabButton, activeTab === "Friends" && styles.activeTab]}
-                        onPress={() => setActiveTab("Friends")}
+                        onPress={() => {
+                            haptics.trigger('selection');
+                            setActiveTab("Friends");
+                        }}
                     >
                         <Text style={[styles.tabText, { color: activeTab === "Friends" ? theme.text : theme.textSecondary }]}>Friends</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={[styles.tabButton, activeTab === "Trending" && styles.activeTab]}
-                        onPress={() => setActiveTab("Trending")}
+                        onPress={() => {
+                            haptics.trigger('selection');
+                            setActiveTab("Trending");
+                        }}
                     >
                         <Text style={[styles.tabText, { color: activeTab === "Trending" ? theme.text : theme.textSecondary }]}>Trending</Text>
                     </TouchableOpacity>
@@ -204,7 +213,10 @@ export default function HomeTab({ navigation }) {
                                 <TouchableOpacity
                                     key={album.id}
                                     style={styles.trendingAlbumCard}
-                                    onPress={() => Alert.alert("Album", album.title)}
+                                    onPress={() => {
+                                        haptics.trigger('light');
+                                        Alert.alert("Album", album.title);
+                                    }}
                                 >
                                     <Image source={{ uri: album.cover_url }} style={styles.trendingAlbumCover} />
                                     <Text style={[styles.trendingAlbumTitle, { color: theme.text }]} numberOfLines={1}>{album.title}</Text>
@@ -258,9 +270,12 @@ export default function HomeTab({ navigation }) {
                                 <TouchableOpacity
                                     key={item.id || index}
                                     style={[styles.feedCard, { backgroundColor: "#1A1A1A" }]}
-                                    onPress={() => navigation.navigate("ReviewDetail", {
-                                        review: item
-                                    })}
+                                    onPress={() => {
+                                        haptics.trigger('light');
+                                        navigation.navigate("ReviewDetail", {
+                                            review: item
+                                        });
+                                    }}
                                 >
                                     {/* Left Content */}
                                     <View style={{ flex: 1, marginRight: 15 }}>
